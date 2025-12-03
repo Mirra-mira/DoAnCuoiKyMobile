@@ -69,4 +69,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 //    Add bottom navigation bar
     implementation("androidx.navigation:navigation-compose:2.8.8")
+// splash
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

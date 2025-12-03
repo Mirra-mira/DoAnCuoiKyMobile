@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
     primary = Moss,
-    onPrimary = Lithium,
+    onPrimary = Silver,
 
     secondary = Rose,
     onSecondary = Lithium,
@@ -40,8 +40,8 @@ val LightColorScheme = lightColorScheme(
     secondary = RoseOw,
     onSecondary = OffBlack,
 
-    background = OffBlack,
-    onBackground = Lithium,
+    background = Lithium,
+    onBackground = OffBlack,
 
     surface = OffBlack,
     onSurface = Lithium,

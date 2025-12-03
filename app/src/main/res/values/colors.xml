@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-</resources>
+    <resources>
+        // light mode
+        <color name="off_black">#FF1C1C1C</color>
+        <color name="moss_ow">#FF006614</color>
+        <color name="rose_ow">#FFB30000</color>
+        <color name="owl_ow">#FF595959</color>
+
+        // dark mode
+        <color name="lithium">#FFF7F7F7</color>
+        <color name="moss">#FF3DFF64</color>
+        <color name="rose">#FFFF6161</color>
+        <color name="silver">#FF969696</color>
+    </resources>

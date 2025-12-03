@@ -1,7 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.DoAnCuoiKyMobile" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/moss</item>
+
+        <item name="android:colorBackground">@color/off_black</item>
+
+        <item name="colorSurface">@color/off_black</item>
+
+        <item name="colorOnPrimary">@color/lithium</item>
+
+        <item name="colorOnBackground">@color/lithium</item>
+
+        <item name="colorSecondary">@color/silver</item>
+
+        <item name="colorError">@color/rose</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSurface</item>
+
     </style>
 </resources>

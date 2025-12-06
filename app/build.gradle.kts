@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.fragment)
+    implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,4 +70,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 //    Add bottom navigation bar
     implementation("androidx.navigation:navigation-compose:2.8.8")
+//Add Recyclerview & Cardview
+    implementation("androidx.recyclerview:recyclerview:1.3.")
+    implementation("androidx.cardview:cardview:1.0.0")
 }

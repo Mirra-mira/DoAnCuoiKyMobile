@@ -1,8 +1,6 @@
-package com.example.doancuoikymobile
+package com.example.doancuoikymobile.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -11,27 +9,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
-import com.example.doancuoikymobile.ui.theme.MomoTrustSans
-import com.example.doancuoikymobile.ui.theme.Typography
 import androidx.compose.material3.Card
 import androidx.compose.ui.Alignment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
+import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.databinding.ActivityMainBinding
-
-
+import com.example.doancuoikymobile.ui.fragment.HomeFragment
+import com.example.doancuoikymobile.ui.fragment.LibraryFragment
+import com.example.doancuoikymobile.ui.fragment.SearchFragment
 
 
 class MainActivity : AppCompatActivity() {

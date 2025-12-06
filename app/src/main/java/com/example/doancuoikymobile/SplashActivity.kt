@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.doancuoikymobile.ui.activity.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

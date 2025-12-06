@@ -1,4 +1,4 @@
-package com.example.doancuoikymobile
+package com.example.doancuoikymobile.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,10 +9,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.doancuoikymobile.ui.activity.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity: ComponentActivity() {
@@ -33,4 +31,3 @@ class SplashActivity: ComponentActivity() {
         }
     }
 }
-

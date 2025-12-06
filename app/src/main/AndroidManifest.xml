@@ -11,7 +11,7 @@
         android:roundIcon="@drawable/bg_splash"
         android:supportsRtl="true"
         android:theme="@style/Theme.DoAnCuoiKyMobile">
-        <activity android:name=".SplashActivity"
+        <activity android:name=".ui.activity.SplashActivity"
             android:theme="@style/Theme.DoAnCuoiKyMobile.SplashScreen"
             android:exported="true">
         <intent-filter>

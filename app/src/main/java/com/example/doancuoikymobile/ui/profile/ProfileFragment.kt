@@ -18,28 +18,28 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate layout
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        // 1. Xử lý nút Back (Quay lại)
+        // 1. Xử lý nút Back
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         btnBack.setOnClickListener {
             // Quay lại màn hình trước đó
             parentFragmentManager.popBackStack()
         }
 
-        // 2. Setup danh sách Playlist bên dưới
+        // 2. Setup RecyclerView
         val rvProfile = view.findViewById<RecyclerView>(R.id.rvProfilePlaylists)
 
-        // Tạo dữ liệu giả cho Profile (Hoặc tái sử dụng data nếu cần)
+        // Tạo dữ liệu giả (Dùng lại Model bạn đã tạo)
         val profileData = arrayListOf(
             LibraryModel("Shazam", "7 likes"),
             LibraryModel("Roadtrip", "4 likes"),
             LibraryModel("Study", "5 likes"),
-            LibraryModel("Gym Hits", "12 likes")
+            LibraryModel("Coding Mode", "Playlist • 102 songs")
         )
 
         rvProfile.layoutManager = LinearLayoutManager(context)
+        // Tái sử dụng LibraryAdapter bạn đã viết
         rvProfile.adapter = LibraryAdapter(profileData)
 
         return view

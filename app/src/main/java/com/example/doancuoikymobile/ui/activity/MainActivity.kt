@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/main/java/com/example/doancuoikymobile/ui/MainActivity.kt
 package com.example.doancuoikymobile.ui
+========
+package com.example.doancuoikymobile.ui.activity
+>>>>>>>> ff4d89ca65791e9d95219902c6a6e481cf3e46b0:app/src/main/java/com/example/doancuoikymobile/ui/activity/MainActivity.kt
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -9,15 +13,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+<<<<<<<< HEAD:app/src/main/java/com/example/doancuoikymobile/ui/MainActivity.kt
+========
+import androidx.compose.material3.Card
+>>>>>>>> ff4d89ca65791e9d95219902c6a6e481cf3e46b0:app/src/main/java/com/example/doancuoikymobile/ui/activity/MainActivity.kt
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+<<<<<<<< HEAD:app/src/main/java/com/example/doancuoikymobile/ui/MainActivity.kt
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
 import androidx.compose.material3.Card
 import androidx.compose.ui.Alignment
@@ -28,6 +39,16 @@ import com.example.doancuoikymobile.ui.fragment.HomeFragment
 import com.example.doancuoikymobile.ui.fragment.LibraryFragment
 import com.example.doancuoikymobile.ui.fragment.SearchFragment
 
+========
+import androidx.fragment.app.Fragment
+import com.example.doancuoikymobile.ui.home.HomeFragment
+import com.example.doancuoikymobile.ui.playlist.LibraryFragment
+import com.example.doancuoikymobile.R
+import com.example.doancuoikymobile.ui.search.SearchFragment
+import com.example.doancuoikymobile.databinding.ActivityMainBinding
+import com.example.doancuoikymobile.ui.profile.ProfileFragment
+import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
+>>>>>>>> ff4d89ca65791e9d95219902c6a6e481cf3e46b0:app/src/main/java/com/example/doancuoikymobile/ui/activity/MainActivity.kt
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -50,6 +71,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.bottom_nav_lib -> {
                     replaceFragment(LibraryFragment())
+                    true
+                }
+                R.id.bottom_nav_profile -> {
+                    replaceFragment(ProfileFragment())
                     true
                 }
                 else -> false
@@ -76,13 +101,13 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun MainContent() {
 
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(modifier = Modifier.Companion.fillMaxSize()) { innerPadding ->
             Column(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxSize()
 
                     .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 FilledCardExample()
@@ -93,18 +118,19 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun FilledCardExample() {
+        HorizontalDivider(thickness = 2.dp)
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.background,
             ),
-            modifier = Modifier.fillMaxWidth().height(100.dp)
+            modifier = Modifier.Companion.fillMaxWidth().height(100.dp)
         ) {
             Text(
                 text = "Card phat nhac",
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxSize()
                     .padding(16.dp),
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Companion.Center,
             )
         }
     }
@@ -117,4 +143,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-

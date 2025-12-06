@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/main/java/com/example/doancuoikymobile/ui/fragment/HomeFragment.kt
 package com.example.doancuoikymobile.ui.fragment
+========
+package com.example.doancuoikymobile.ui.home
+>>>>>>>> ff4d89ca65791e9d95219902c6a6e481cf3e46b0:app/src/main/java/com/example/doancuoikymobile/ui/home/HomeFragment.kt
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

@@ -1,60 +1,47 @@
 package com.example.doancuoikymobile.ui.profile
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.doancuoikymobile.R
+import com.example.doancuoikymobile.adapter.LibraryAdapter
+import com.example.doancuoikymobile.adapter.LibraryModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
-    }
+        val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        // 1. Xử lý nút Back
+        val btnBack = view.findViewById<ImageView>(R.id.btnBack)
+        btnBack.setOnClickListener {
+            // Quay lại màn hình trước đó
+            parentFragmentManager.popBackStack()
+        }
+
+        // 2. Setup RecyclerView
+        val rvProfile = view.findViewById<RecyclerView>(R.id.rvProfilePlaylists)
+
+        // Tạo dữ liệu giả (Dùng lại Model bạn đã tạo)
+        val profileData = arrayListOf(
+            LibraryModel("Shazam", "7 likes"),
+            LibraryModel("Roadtrip", "4 likes"),
+            LibraryModel("Study", "5 likes"),
+            LibraryModel("Coding Mode", "Playlist • 102 songs")
+        )
+
+        rvProfile.layoutManager = LinearLayoutManager(context)
+        // Tái sử dụng LibraryAdapter bạn đã viết
+        rvProfile.adapter = LibraryAdapter(profileData)
+
+        return view
     }
 }

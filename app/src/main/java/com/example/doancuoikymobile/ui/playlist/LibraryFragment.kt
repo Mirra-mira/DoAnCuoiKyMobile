@@ -1,5 +1,6 @@
 package com.example.doancuoikymobile.ui.playlist
 
+import android.R.style.Theme
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -112,23 +113,23 @@ class LibraryFragment : Fragment() {
             // --- Chọn Playlist ---
             // Nút Playlist: Nền xanh, Chữ đen, Tag = selected
             btnPlaylists.setBackgroundResource(R.drawable.bg_rounded_filled)
-            btnPlaylists.setTextColor(Color.BLACK)
+            btnPlaylists.setTextColor(Color.WHITE)
             btnPlaylists.tag = "selected"
 
             // Nút Artist: Viền trắng, Chữ trắng, Tag = unselected
             btnArtists.setBackgroundResource(R.drawable.bg_rounded_border)
-            btnArtists.setTextColor(Color.WHITE)
+            btnArtists.setTextColor(Color.BLACK)
             btnArtists.tag = "unselected"
         } else {
             // --- Chọn Artist ---
             // Nút Playlist: Viền trắng, Chữ trắng
             btnPlaylists.setBackgroundResource(R.drawable.bg_rounded_border)
-            btnPlaylists.setTextColor(Color.WHITE)
+            btnPlaylists.setTextColor(Color.BLACK)
             btnPlaylists.tag = "unselected"
 
             // Nút Artist: Nền xanh, Chữ đen
             btnArtists.setBackgroundResource(R.drawable.bg_rounded_filled)
-            btnArtists.setTextColor(Color.BLACK)
+            btnArtists.setTextColor(Color.WHITE)
             btnArtists.tag = "selected"
         }
     }

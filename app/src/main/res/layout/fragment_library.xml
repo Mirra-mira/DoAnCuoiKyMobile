@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
     android:padding="16dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardAvatar"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        app:cardBackgroundColor="#FF5722"
+        app:cardBackgroundColor="?attr/colorPrimary"
         app:cardCornerRadius="17.5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background" />
+            android:src="@drawable/bottom_nav_profile" />
     </androidx.cardview.widget.CardView>
 
     <TextView
@@ -29,9 +28,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Your Library"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="24sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/momotrustsans_extrabold"
         app:layout_constraintBottom_toBottomOf="@id/cardAvatar"
         app:layout_constraintStart_toEndOf="@id/cardAvatar"
         app:layout_constraintTop_toTopOf="@id/cardAvatar" />
@@ -62,7 +61,8 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:text="Playlists"
-            android:textColor="#FFFFFF" />
+            android:textColor="?attr/colorOnPrimary"
+            android:fontFamily="@font/momotrustsans_semibold"/>
 
         <TextView
             android:id="@+id/btnArtists"
@@ -72,7 +72,8 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:text="Artists"
-            android:textColor="#FFFFFF" />
+            android:textColor="?attr/colorOnPrimary"
+            android:fontFamily="@font/momotrustsans_semibold"/>
 
     </LinearLayout>
 
@@ -84,12 +85,13 @@
         android:orientation="horizontal"
         android:paddingVertical="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutFilters"> <ImageView
+        app:layout_constraintTop_toBottomOf="@id/layoutFilters">
+        <ImageView
         android:id="@+id/imgSortIcon"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
-        app:tint="#FFFFFF" />
+        app:tint="?attr/colorOnPrimary" />
 
         <TextView
             android:id="@+id/tvSortLabel"
@@ -97,7 +99,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Recently played"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnPrimary"
+            android:fontFamily="@font/momotrustsans_regular"
             android:textSize="14sp" />
     </LinearLayout>
 

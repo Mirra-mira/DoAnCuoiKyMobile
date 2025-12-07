@@ -73,4 +73,5 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 //    lifecyclescope
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("com.google.android.material:material:1.9.0")
 }

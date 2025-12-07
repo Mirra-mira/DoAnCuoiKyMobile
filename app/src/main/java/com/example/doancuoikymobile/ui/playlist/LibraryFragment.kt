@@ -1,6 +1,6 @@
 package com.example.doancuoikymobile.ui.playlist
 
-import android.R.style.Theme
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +14,7 @@ import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.adapter.LibraryAdapter
 import com.example.doancuoikymobile.adapter.LibraryModel
 import com.example.doancuoikymobile.ui.profile.ProfileFragment
-
+import com.google.android.material.R as MaterialR
 class LibraryFragment : Fragment() {
 
     // 1. Khai báo các biến View và Adapter
@@ -101,38 +101,47 @@ class LibraryFragment : Fragment() {
     }
 
     // Hàm cập nhật dữ liệu cho RecyclerView
+    @SuppressLint("NotifyDataSetChanged")
     private fun loadData(newData: List<LibraryModel>) {
         displayList.clear() // Xóa dữ liệu cũ
         displayList.addAll(newData) // Thêm dữ liệu mới
         libraryAdapter.notifyDataSetChanged() // Báo cho Adapter vẽ lại
     }
-
+    //Lấy màu theo Theme
+    private fun getThemeColor(attr: Int): Int {
+        val typedValue = android.util.TypedValue()
+        requireContext().theme.resolveAttribute(attr, typedValue, true)
+        return typedValue.data
+    }
     // Hàm đổi màu nút bấm (Xanh/Đen)
     private fun updateFilterUI(isPlaylistSelected: Boolean) {
+        // Lấy màu động (Đen ở Light mode, Trắng ở Dark mode)
+        val defaultTextColor = getThemeColor( MaterialR.attr.colorOnSurface)
         if (isPlaylistSelected) {
             // --- Chọn Playlist ---
-            // Nút Playlist: Nền xanh, Chữ đen, Tag = selected
+            // Playlist (ĐANG CHỌN - Nền Xanh): Chữ luôn là ĐEN cho nổi
             btnPlaylists.setBackgroundResource(R.drawable.bg_rounded_filled)
-            btnPlaylists.setTextColor(Color.WHITE)
+            btnPlaylists.setTextColor(Color.BLACK)
             btnPlaylists.tag = "selected"
 
-            // Nút Artist: Viền trắng, Chữ trắng, Tag = unselected
+            // Artist (KHÔNG CHỌN - Nền Trong suốt): Chữ theo Theme
             btnArtists.setBackgroundResource(R.drawable.bg_rounded_border)
-            btnArtists.setTextColor(Color.BLACK)
+            btnArtists.setTextColor(defaultTextColor) // <-- Quan trọng: Dùng màu động
             btnArtists.tag = "unselected"
         } else {
             // --- Chọn Artist ---
-            // Nút Playlist: Viền trắng, Chữ trắng
+            // Playlist (KHÔNG CHỌN): Chữ theo Theme
             btnPlaylists.setBackgroundResource(R.drawable.bg_rounded_border)
-            btnPlaylists.setTextColor(Color.BLACK)
+            btnPlaylists.setTextColor(defaultTextColor) // <-- Quan trọng: Dùng màu động
             btnPlaylists.tag = "unselected"
 
-            // Nút Artist: Nền xanh, Chữ đen
+            // Artist (ĐANG CHỌN): Chữ ĐEN
             btnArtists.setBackgroundResource(R.drawable.bg_rounded_filled)
-            btnArtists.setTextColor(Color.WHITE)
+            btnArtists.setTextColor(Color.BLACK)
             btnArtists.tag = "selected"
         }
     }
+    @SuppressLint("NotifyDataSetChanged")
     private fun sortList() {
         if (isAscending) {
             // Đang là A-Z, bấm vào sẽ thành Z-A

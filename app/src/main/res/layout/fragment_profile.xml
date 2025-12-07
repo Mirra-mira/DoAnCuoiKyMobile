@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
+    android:background="?attr/colorSurface"
     tools:context=".ui.profile.ProfileFragment">
 
     <View
@@ -21,7 +21,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/ic_arrow_back"
-        app:tint="#FFFFFF"
+        app:tint="?attr/colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,7 +32,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:src="@android:drawable/ic_menu_more"
-        app:tint="#FFFFFF"
+        app:tint="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -63,7 +63,7 @@
         android:paddingHorizontal="24dp"
         android:paddingVertical="6dp"
         android:text="Edit Profile"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,13 +89,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="23"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="PLAYLISTS"
-                android:textColor="#AAAAAA"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="10sp" />
         </LinearLayout>
 
@@ -109,13 +109,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="58"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="FOLLOWERS"
-                android:textColor="#AAAAAA"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="10sp" />
         </LinearLayout>
 
@@ -129,13 +129,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="43"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="FOLLOWING"
-                android:textColor="#AAAAAA"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
@@ -147,7 +147,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:text="Playlists"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"

@@ -31,6 +31,7 @@ class LibraryAdapter(private val dataList: List<LibraryModel>) :
         val item = dataList[position]
         holder.tvTitle.text = item.title
         holder.tvSubtitle.text = item.subtitle
+
     }
 
     override fun getItemCount() = dataList.size

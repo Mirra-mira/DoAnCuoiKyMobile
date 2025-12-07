@@ -10,7 +10,7 @@ val OwlOw = Color(0xFF595959)
 
 
 
-// dark mode
+// drawable-night mode
 val Lithium = Color(0xFFF7F7F7)
 val Moss = Color(0xFF3DFF64)
 val Rose = Color(0xFFFF6161)

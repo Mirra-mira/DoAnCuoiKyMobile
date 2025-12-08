@@ -49,18 +49,22 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(HomeFragment())
                     true
                 }
+
                 R.id.bottom_nav_search -> {
                     replaceFragment(SearchFragment())
                     true
                 }
+
                 R.id.bottom_nav_lib -> {
                     replaceFragment(LibraryFragment())
                     true
                 }
+
                 R.id.bottom_nav_profile -> {
                     replaceFragment(ProfileFragment())
                     true
                 }
+
                 else -> false
             }
         }
@@ -68,57 +72,58 @@ class MainActivity : AppCompatActivity() {
         val composeView = binding.composeView
         composeView.setContent {
             DoAnCuoiKyMobileTheme(dynamicColor = false) {
-                MainContent()
+                //MainContent()
             }
         }
     }
 
-    private fun replaceFragment(fragment : Fragment) {
+    private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .addToBackStack(null)
             .commit()
     }
-
-    @Composable
-    fun MainContent() {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                FilledCardExample()
-            }
-        }
-    }
-
-    @Composable
-    fun FilledCardExample() {
-        HorizontalDivider(thickness = 2.dp)
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background,
-            ),
-            modifier = Modifier.fillMaxWidth().height(100.dp)
-        ) {
-            Text(
-                text = "Card phat nhac",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun MainContentPreview() {
-        DoAnCuoiKyMobileTheme {
-            MainContent()
-        }
-    }
 }
+
+//    @Composable
+//    fun MainContent() {
+//        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(innerPadding),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                FilledCardExample()
+//            }
+//        }
+//    }
+//
+//    @Composable
+//    fun FilledCardExample() {
+//        HorizontalDivider(thickness = 2.dp)
+//        Card(
+//            colors = CardDefaults.cardColors(
+//                containerColor = MaterialTheme.colorScheme.background,
+//            ),
+//            modifier = Modifier.fillMaxWidth().height(100.dp)
+//        ) {
+//            Text(
+//                text = "Card phat nhac",
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(16.dp),
+//                textAlign = TextAlign.Center,
+//            )
+//        }
+//    }
+//
+//    @Preview(showBackground = true)
+//    @Composable
+//    fun MainContentPreview() {
+//        DoAnCuoiKyMobileTheme {
+//            MainContent()
+//        }
+//    }
+//}

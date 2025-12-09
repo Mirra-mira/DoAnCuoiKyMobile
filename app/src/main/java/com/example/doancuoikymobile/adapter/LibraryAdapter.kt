@@ -5,15 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.doancuoikymobile.R // <-- Import the R class
+import com.example.doancuoikymobile.R
+
 
 data class LibraryModel(
     val title: String,
     val subtitle: String
 )
 
-class LibraryAdapter(private val dataList: List<LibraryModel>) :
-    RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
+class LibraryAdapter(
+    private val dataList: List<LibraryModel>,
+    private val onItemClick: (LibraryModel) -> Unit
+) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         // Correctly reference views from your item layout
@@ -32,6 +35,10 @@ class LibraryAdapter(private val dataList: List<LibraryModel>) :
         holder.tvTitle.text = item.title
         holder.tvSubtitle.text = item.subtitle
 
+        // DÒNG CODE MỚI: Gán sự kiện click vào toàn bộ item view
+        holder.itemView.setOnClickListener {
+            onItemClick(item) // Gọi hàm callback và truyền đối tượng item đã được click
+        }
     }
 
     override fun getItemCount() = dataList.size

@@ -10,7 +10,7 @@
         android:id="@+id/cardAvatar"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        app:cardBackgroundColor="?attr/colorPrimary"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="17.5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Your Library"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="24sp"
         android:fontFamily="@font/momotrustsans_extrabold"
         app:layout_constraintBottom_toBottomOf="@id/cardAvatar"

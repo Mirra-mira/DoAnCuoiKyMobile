@@ -26,13 +26,13 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView">
 
     </FrameLayout>
-<!--    <androidx.compose.ui.platform.ComposeView-->
-<!--        android:id="@+id/compose_view"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="100dp"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>-->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardMiniPlayer"

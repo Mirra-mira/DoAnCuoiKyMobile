@@ -107,45 +107,45 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-//    @Composable
-//    fun MainContent() {
-//        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(innerPadding),
-//                horizontalAlignment = Alignment.CenterHorizontally,
-//                verticalArrangement = Arrangement.Center
-//            ) {
-//                FilledCardExample()
-//            }
-//        }
-//    }
-//
-//    @Composable
-//    fun FilledCardExample() {
-//        HorizontalDivider(thickness = 2.dp)
-//        Card(
-//            colors = CardDefaults.cardColors(
-//                containerColor = MaterialTheme.colorScheme.background,
-//            ),
-//            modifier = Modifier.fillMaxWidth().height(100.dp)
-//        ) {
-//            Text(
-//                text = "Card phat nhac",
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp),
-//                textAlign = TextAlign.Center,
-//            )
-//        }
-//    }
-//
-//    @Preview(showBackground = true)
-//    @Composable
-//    fun MainContentPreview() {
-//        DoAnCuoiKyMobileTheme {
-//            MainContent()
-//        }
-//    }
-//}
+    @Composable
+    fun MainContent() {
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                FilledCardExample()
+            }
+        }
+    }
+
+    @Composable
+    fun FilledCardExample() {
+        HorizontalDivider(thickness = 2.dp)
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background,
+            ),
+            modifier = Modifier.fillMaxWidth().height(100.dp)
+        ) {
+            Text(
+                text = "Card phat nhac",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun MainContentPreview() {
+        DoAnCuoiKyMobileTheme {
+            MainContent()
+        }
+    }
+

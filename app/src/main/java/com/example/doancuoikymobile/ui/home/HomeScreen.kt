@@ -83,7 +83,8 @@ sealed class HomeSection {
 fun HomeScreen(
     modifier: Modifier = Modifier,
     username: String = "Bạn",
-    isNewUser: Boolean = false // TRUE nếu user mới
+    isNewUser: Boolean = false, // TRUE nếu user mới
+    onSongClick: (String) -> Unit = {}
 ) {
     // Mock sections
     // Mock sections
@@ -112,7 +113,11 @@ fun HomeScreen(
                         RecentlyPlayedSection(
                             items = section.items,
                             onItemClick = { item ->
-                                // TODO: Play or open detail
+                                if (item.type == ContentType.SONG) {
+                                    onSongClick(item.title)
+                                } else {
+
+                                }
                             }
                         )
                     }
@@ -124,7 +129,11 @@ fun HomeScreen(
                             title = section.title,
                             items = section.items,
                             onItemClick = { item ->
-                                // TODO: Open playlist/album
+                                if (item.type == ContentType.SONG) {
+                                    onSongClick(item.title)
+                                } else {
+
+                                }
                             }
                         )
                     }
@@ -136,7 +145,11 @@ fun HomeScreen(
                             title = section.title,
                             items = section.items,
                             onItemClick = { item ->
-                                // TODO: Open content
+                                if (item.type == ContentType.SONG) {
+                                    onSongClick(item.title)
+                                } else {
+
+                                }
                             }
                         )
                     }

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.ui.search.SearchScreen
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
+import com.example.doancuoikymobile.utils.NavigationHelper
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,13 +51,16 @@ class HomeFragment : Fragment() {
                 DoAnCuoiKyMobileTheme {
                     HomeScreen(
                         username = "Username", // TODO: Lấy từ UserSession
-                        isNewUser = false  // TODO: Check từ recently played history
+                        isNewUser = false,  // TODO: Check từ recently played history
+                        onSongClick = { title ->
+                            NavigationHelper.openPlayer(this@HomeFragment, title)
+                        }
                     )
                 }
             }
-        }
 
-        return view
+            return view
+        }
     }
 }
 

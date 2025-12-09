@@ -51,7 +51,7 @@ sealed class SearchResultItem {
 
 
 @Composable
-fun SearchScreen(modifier: Modifier = Modifier) {
+fun SearchScreen(modifier: Modifier = Modifier, onSongClick: (String) -> Unit = {}) {
     // State management đơn giản
     var searchQuery by remember { mutableStateOf("") }
     var searchHistory by remember { mutableStateOf(getMockHistory()) }
@@ -148,17 +148,11 @@ fun SearchScreen(modifier: Modifier = Modifier) {
             }
 
             searchResults.isNotEmpty() -> {
-                SearchResultsList(results = searchResults)
+                SearchResultsList(results = searchResults, onSongClick = onSongClick)
             }
         }
     }
 }
-
-
-
-
-
-
 
 
 

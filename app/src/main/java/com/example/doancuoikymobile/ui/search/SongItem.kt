@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 
 @Composable
-fun SongItem(song: SearchResultItem.Song) {
+fun SongItem(song: SearchResultItem.Song, onClick: () -> Unit = {}) {
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { onClick() }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

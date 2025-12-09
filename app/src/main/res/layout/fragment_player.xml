@@ -2,28 +2,29 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_player"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
     android:padding="16dp">
 
     <ImageView
         android:id="@+id/btnClosePlayer"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:contentDescription="Close Player"
         android:src="@drawable/ic_close"
-        app:tint="?attr/colorOnBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Close Player" />
+        app:tint="?attr/colorOnBackground" />
+
     <TextView
         android:id="@+id/tvFullPlayerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/momotrustsans_semibold"
         android:text="TÊN BÀI HÁT"
         android:textColor="?attr/colorOnBackground"
         android:textSize="20sp"
-        android:fontFamily="@font/momotrustsans_semibold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/btnClosePlayer" />
@@ -33,12 +34,12 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginBottom="64dp"
-        android:src="@android:drawable/ic_media_play"
         android:background="@drawable/bg_rounded_filled"
-        app:tint="?attr/colorOnBackground"
+        android:src="@android:drawable/ic_media_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="?attr/colorOnBackground" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -46,6 +47,6 @@
         android:text="Full Player UI"
         android:textColor="?attr/colorOnBackground"
         app:layout_constraintBottom_toTopOf="@id/btnMainPlay"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

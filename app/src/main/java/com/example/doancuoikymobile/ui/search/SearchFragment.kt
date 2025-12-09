@@ -1,14 +1,17 @@
 package com.example.doancuoikymobile.ui.search
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
+import com.example.doancuoikymobile.utils.NavigationHelper
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,14 +41,19 @@ class SearchFragment : Fragment() {
                 ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
             )
 
-            setContent{
-                DoAnCuoiKyMobileTheme(dynamicColor = false)  {
-                    SearchScreen()
+            setContent {
+                DoAnCuoiKyMobileTheme(dynamicColor = false) {
+                    SearchScreen(
+                        onSongClick = { songTitle ->
+                            NavigationHelper.openPlayer(this@SearchFragment, songTitle)
+                        }
+
+                    )
                 }
             }
+
+            return view
         }
-
-        return view
     }
-
 }
+

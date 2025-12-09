@@ -1,8 +1,11 @@
 package com.example.doancuoikymobile.ui.activity // Cập nhật đúng package mới
 
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +37,10 @@ import com.example.doancuoikymobile.ui.profile.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    private lateinit var miniPlayerBar: CardView
+    private lateinit var tvMiniTitle: TextView
+    private lateinit var tvMiniSubtitle: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -49,76 +56,90 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(HomeFragment())
                     true
                 }
+
                 R.id.bottom_nav_search -> {
                     replaceFragment(SearchFragment())
                     true
                 }
+
                 R.id.bottom_nav_lib -> {
                     replaceFragment(LibraryFragment())
                     true
                 }
+
                 R.id.bottom_nav_profile -> {
                     replaceFragment(ProfileFragment())
                     true
                 }
+
                 else -> false
             }
-        }
 
+        }
+        miniPlayerBar = findViewById(R.id.cardMiniPlayer)
+        tvMiniTitle = miniPlayerBar.findViewById(R.id.tvMiniTitle)
+        tvMiniSubtitle = miniPlayerBar.findViewById(R.id.tvMiniSubtitle)
+        miniPlayerBar.setOnClickListener{}
         val composeView = binding.composeView
         composeView.setContent {
             DoAnCuoiKyMobileTheme(dynamicColor = false) {
-                MainContent()
+                //MainContent()
             }
         }
     }
-
-    private fun replaceFragment(fragment : Fragment) {
+    fun showMiniPlayer(title: String, subtitle: String) {
+        miniPlayerBar.visibility = View.VISIBLE
+        tvMiniTitle.text = title
+        tvMiniSubtitle.text = subtitle
+        // TODO: Cập nhật icon Play/Pause và thanh tiến trình
+    }
+    private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .addToBackStack(null)
             .commit()
     }
-
-    @Composable
-    fun MainContent() {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                FilledCardExample()
-            }
-        }
-    }
-
-    @Composable
-    fun FilledCardExample() {
-        HorizontalDivider(thickness = 2.dp)
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background,
-            ),
-            modifier = Modifier.fillMaxWidth().height(100.dp)
-        ) {
-            Text(
-                text = "Card phat nhac",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun MainContentPreview() {
-        DoAnCuoiKyMobileTheme {
-            MainContent()
-        }
-    }
 }
+
+//    @Composable
+//    fun MainContent() {
+//        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(innerPadding),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                FilledCardExample()
+//            }
+//        }
+//    }
+//
+//    @Composable
+//    fun FilledCardExample() {
+//        HorizontalDivider(thickness = 2.dp)
+//        Card(
+//            colors = CardDefaults.cardColors(
+//                containerColor = MaterialTheme.colorScheme.background,
+//            ),
+//            modifier = Modifier.fillMaxWidth().height(100.dp)
+//        ) {
+//            Text(
+//                text = "Card phat nhac",
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(16.dp),
+//                textAlign = TextAlign.Center,
+//            )
+//        }
+//    }
+//
+//    @Preview(showBackground = true)
+//    @Composable
+//    fun MainContentPreview() {
+//        DoAnCuoiKyMobileTheme {
+//            MainContent()
+//        }
+//    }
+//}

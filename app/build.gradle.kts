@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.fragment)
+    implementation(libs.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -63,6 +64,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material3:material3-window-size-class:1.4.0")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha09")
+    implementation("com.google.android.material:material:1.12.0")
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -74,4 +77,27 @@ dependencies {
 //    lifecyclescope
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("com.google.android.material:material:1.9.0")
+
+
+    // Compose UI
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
+    // Compose Activity
+    implementation("androidx.activity:activity-compose:1.8.2")
+
+    // ViewModel Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+
+    // Coil (load ảnh từ URL)
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation("androidx.compose.material:material-icons-core")
+// For extended icons (optional)
+    implementation("androidx.compose.material:material-icons-extended")
+
+
 }

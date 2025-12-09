@@ -1,5 +1,6 @@
 package com.example.doancuoikymobile.ui.search
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,13 +27,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.doancuoikymobile.ui.player.PlayerFragment
 
 @Composable
 fun SongItem(song: SearchResultItem.Song) {
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable { /* TODO */ }
+            .clickable {  }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -65,7 +67,8 @@ fun SongItem(song: SearchResultItem.Song) {
             )
         }
 
-        IconButton(onClick = { /* TODO */ }) {
+        IconButton(onClick = {
+        }) {
             Icon(Icons.Default.MoreVert, "Optional")
         }
     }

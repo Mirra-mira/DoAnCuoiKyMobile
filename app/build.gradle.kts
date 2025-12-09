@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.fragment)
     implementation(libs.ui)
+    implementation(libs.androidx.compose.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -69,12 +69,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val composeView = binding.composeView
-        composeView.setContent {
-            DoAnCuoiKyMobileTheme(dynamicColor = false) {
-                //MainContent()
-            }
-        }
+//        val composeView = binding.composeView
+//        composeView.setContent {
+//            DoAnCuoiKyMobileTheme(dynamicColor = false) {
+//                //MainContent()
+//            }
+//        }
     }
 
     private fun replaceFragment(fragment: Fragment) {

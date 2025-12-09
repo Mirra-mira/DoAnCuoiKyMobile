@@ -23,16 +23,16 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="-1dp"
         tools:layout_editor_absoluteY="180dp"
-        app:layout_constraintBottom_toTopOf="@id/compose_view">
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView">
 
     </FrameLayout>
-    <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/compose_view"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
+<!--    <androidx.compose.ui.platform.ComposeView-->
+<!--        android:id="@+id/compose_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="100dp"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>-->
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

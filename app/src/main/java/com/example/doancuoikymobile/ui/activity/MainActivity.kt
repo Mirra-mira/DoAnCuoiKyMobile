@@ -1,8 +1,11 @@
 package com.example.doancuoikymobile.ui.activity // Cập nhật đúng package mới
 
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +37,10 @@ import com.example.doancuoikymobile.ui.profile.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    private lateinit var miniPlayerBar: CardView
+    private lateinit var tvMiniTitle: TextView
+    private lateinit var tvMiniSubtitle: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,8 +74,12 @@ class MainActivity : AppCompatActivity() {
 
                 else -> false
             }
-        }
 
+        }
+        miniPlayerBar = findViewById(R.id.cardMiniPlayer)
+        tvMiniTitle = miniPlayerBar.findViewById(R.id.tvMiniTitle)
+        tvMiniSubtitle = miniPlayerBar.findViewById(R.id.tvMiniSubtitle)
+        miniPlayerBar.setOnClickListener{}
         val composeView = binding.composeView
         composeView.setContent {
             DoAnCuoiKyMobileTheme(dynamicColor = false) {
@@ -76,7 +87,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+    fun showMiniPlayer(title: String, subtitle: String) {
+        miniPlayerBar.visibility = View.VISIBLE
+        tvMiniTitle.text = title
+        tvMiniSubtitle.text = subtitle
+        // TODO: Cập nhật icon Play/Pause và thanh tiến trình
+    }
     private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)

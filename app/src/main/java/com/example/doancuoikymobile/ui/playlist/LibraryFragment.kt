@@ -59,16 +59,34 @@ class LibraryFragment : Fragment() {
         btnArtists = view.findViewById(R.id.btnArtists)
         btnSort = view.findViewById(R.id.btnSort)
         tvSortLabel = view.findViewById(R.id.tvSortLabel)
-        // Cài đặt Adapter
+
+        // 1. Define the click handler FIRST
+        val playlistClickHandler: (LibraryModel) -> Unit = { playlist ->
+            // In ra thông tin để debug
+            android.util.Log.d("LibraryFragment", "Clicked on: ${playlist.title}")
+
+            // Chuyển sang màn hình chi tiết, truyền Title và Subtitle đi
+            val detailFragment = PlaylistDetailFragment.newInstance(playlist.title, playlist.subtitle)
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, detailFragment) // R.id.frameLayout là container của bạn
+                .addToBackStack(null)
+                .commit()
+        }
+
+        // 2. Add initial data to the display list
         // Mặc định ban đầu add dữ liệu Playlist vào displayList
         displayList.addAll(playlistData)
-        libraryAdapter = LibraryAdapter(displayList)
+
+        // 3. Initialize the Adapter ONCE with the click handler
+        libraryAdapter = LibraryAdapter(displayList, playlistClickHandler)
         rvLibrary.layoutManager = LinearLayoutManager(context)
         rvLibrary.adapter = libraryAdapter
 
         // Set giao diện nút bấm mặc định (Playlist)
         updateFilterUI(isPlaylistSelected = true)
         tvSortLabel.text = "A-Z"
+
         // Xử lý sự kiện khi bấm nút
         btnPlaylists.setOnClickListener {
             if (btnPlaylists.tag != "selected") {
@@ -86,9 +104,11 @@ class LibraryFragment : Fragment() {
                 isAscending = true
             }
         }
+
         btnSort.setOnClickListener {
             sortList()
         }
+
         val cardAvatar = view.findViewById<View>(R.id.cardAvatar) // Tìm CardView Avatar
         cardAvatar.setOnClickListener {
             // Chuyển sang ProfileFragment
@@ -97,8 +117,10 @@ class LibraryFragment : Fragment() {
                 .addToBackStack(null) // Để user ấn nút Back của điện thoại thì quay lại được
                 .commit()
         }
+
         return view
     }
+
 
     // Hàm cập nhật dữ liệu cho RecyclerView
     @SuppressLint("NotifyDataSetChanged")

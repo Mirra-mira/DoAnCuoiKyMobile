@@ -20,13 +20,6 @@ class ProfileFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        // 1. Xử lý nút Back
-        val btnBack = view.findViewById<ImageView>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            // Quay lại màn hình trước đó
-            parentFragmentManager.popBackStack()
-        }
-
         // 2. Setup RecyclerView
         val rvProfile = view.findViewById<RecyclerView>(R.id.rvProfilePlaylists)
 
@@ -39,8 +32,10 @@ class ProfileFragment : Fragment() {
         )
 
         rvProfile.layoutManager = LinearLayoutManager(context)
-        // Tái sử dụng LibraryAdapter bạn đã viết
-        rvProfile.adapter = LibraryAdapter(profileData)
+
+        // FIX: Pass the required 'onItemClick' parameter.
+        // For now, it can be an empty lambda if you don't need to handle clicks here.
+        rvProfile.adapter = LibraryAdapter(profileData) { /* TODO: Handle item click here */ }
 
         return view
     }

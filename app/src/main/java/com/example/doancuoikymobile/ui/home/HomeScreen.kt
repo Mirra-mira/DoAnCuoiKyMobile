@@ -83,11 +83,12 @@ sealed class HomeSection {
 fun HomeScreen(
     modifier: Modifier = Modifier,
     username: String = "Bạn",
-    isNewUser: Boolean = false, // TRUE nếu user mới
-    onSongClick: (String) -> Unit = {}
+    isNewUser: Boolean = false,
+    onSongClick: (String) -> Unit = {},
+    onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> }
 ) {
     // Mock sections
-    // Mock sections
+
     val sections = remember(username, isNewUser) {
         buildHomeSections(username, isNewUser)
     }
@@ -115,8 +116,10 @@ fun HomeScreen(
                             onItemClick = { item ->
                                 if (item.type == ContentType.SONG) {
                                     onSongClick(item.title)
+                                } else if (item.type == ContentType.PLAYLIST) {
+                                    onPlaylistClick(item.title, item.subtitle)
                                 } else {
-
+                                    //
                                 }
                             }
                         )
@@ -131,8 +134,8 @@ fun HomeScreen(
                             onItemClick = { item ->
                                 if (item.type == ContentType.SONG) {
                                     onSongClick(item.title)
-                                } else {
-
+                                } else if (item.type == ContentType.PLAYLIST) {
+                                    onPlaylistClick(item.title, item.subtitle)
                                 }
                             }
                         )
@@ -147,8 +150,8 @@ fun HomeScreen(
                             onItemClick = { item ->
                                 if (item.type == ContentType.SONG) {
                                     onSongClick(item.title)
-                                } else {
-
+                                } else if (item.type == ContentType.PLAYLIST) {
+                                    onPlaylistClick(item.title, item.subtitle)
                                 }
                             }
                         )
@@ -168,7 +171,7 @@ private fun buildHomeSections(
 ): List<HomeSection> {
     val sections = mutableListOf<HomeSection>()
 
-    // 1. Genres - LUÔN LUÔN hiển thị
+
     sections.add(
         HomeSection.Genres(
             items = listOf(

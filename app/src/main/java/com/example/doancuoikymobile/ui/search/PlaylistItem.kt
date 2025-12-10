@@ -27,11 +27,12 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun PlaylistItem(playlist: SearchResultItem.Playlist) {
+fun PlaylistItem(playlist: SearchResultItem.Playlist,
+                 onClick: (title: String, subtitle: String) -> Unit = { _, _ -> }) {
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable { /* TODO */ }
+            .clickable { onClick(playlist.title, playlist.subtitle) }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -46,12 +46,13 @@ class SearchFragment : Fragment() {
                     SearchScreen(
                         onSongClick = { songTitle ->
                             NavigationHelper.openPlayer(this@SearchFragment, songTitle)
+                        },
+                        onPlaylistClick = { title, subtitle ->
+                            NavigationHelper.openPlaylist(this@SearchFragment, title, subtitle)
                         }
-
                     )
                 }
             }
-
             return view
         }
     }

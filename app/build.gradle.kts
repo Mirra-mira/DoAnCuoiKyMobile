@@ -100,5 +100,7 @@ dependencies {
 // For extended icons (optional)
     implementation("androidx.compose.material:material-icons-extended")
 
+    implementation("com.google.android.material:material:<version>")
+
 
 }

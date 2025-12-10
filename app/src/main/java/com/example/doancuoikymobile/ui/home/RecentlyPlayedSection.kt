@@ -29,7 +29,7 @@ fun RecentlyPlayedSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(vertical = 16.dp)) {
-        SectionHeader("Nghe gần đây")
+        SectionHeader("Recently Listened")
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),

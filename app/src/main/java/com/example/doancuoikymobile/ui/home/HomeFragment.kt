@@ -54,6 +54,10 @@ class HomeFragment : Fragment() {
                         isNewUser = false,  // TODO: Check từ recently played history
                         onSongClick = { title ->
                             NavigationHelper.openPlayer(this@HomeFragment, title)
+
+                        },
+                        onPlaylistClick = { title, subtitle ->
+                            NavigationHelper.openPlaylist(this@HomeFragment, title, "Playlist")
                         }
                     )
                 }

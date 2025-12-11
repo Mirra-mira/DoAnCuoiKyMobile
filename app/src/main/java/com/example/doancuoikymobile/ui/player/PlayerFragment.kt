@@ -37,6 +37,16 @@ class PlayerFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
+        val btnPlay = view.findViewById<ImageView>(R.id.btnMainPlay)
+        var isPlaying = btnPlay.isSelected
+
+
+        btnPlay.setOnClickListener {
+            isPlaying = !isPlaying
+            btnPlay.isSelected = isPlaying
+        }
+
+
         return view
     }
 

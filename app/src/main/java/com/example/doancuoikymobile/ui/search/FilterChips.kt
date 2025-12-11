@@ -19,16 +19,21 @@ fun FilterChips(
     modifier: Modifier = Modifier
 ) {
     LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(SearchFilter.entries.toTypedArray()) { filter ->
             FilterChip(
                 selected = currentFilter == filter,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.surface,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.surface,),
                 onClick = { onFilterChange(filter) },
                 label = { Text(filter.displayName) },
                 leadingIcon = if (currentFilter == filter) {
-                    { Icon(Icons.Default.Check, null, Modifier.size(18.dp)) }
+                    { Icon(Icons.Default.Check, null,
+                        Modifier.size(18.dp)) }
                 } else null
             )
         }

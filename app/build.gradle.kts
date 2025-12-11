@@ -94,7 +94,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     // Coil (load ảnh từ URL)
-    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt:coil:2.7.0")
 
     implementation("androidx.compose.material:material-icons-core")
 // For extended icons (optional)

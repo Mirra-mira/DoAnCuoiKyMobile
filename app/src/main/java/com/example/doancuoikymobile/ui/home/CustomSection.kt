@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.doancuoikymobile.ui.components.CoverImage
 
 /**
  * Custom Section
@@ -56,25 +57,12 @@ private fun ContentCardItem(
             .width(160.dp)
             .clickable(onClick = onClick)
     ) {
-        // Cover Image
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = when (item.type) {
-                    ContentType.SONG, ContentType.ALBUM -> Icons.Default.Album
-                    ContentType.PLAYLIST -> Icons.Default.QueueMusic
-                    ContentType.ARTIST -> Icons.Default.Person
-                },
-                contentDescription = null,
-                modifier = Modifier.size(56.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        CoverImage(
+            imageUrl = item.imageUrl,
+            contentType = item.type,
+            modifier = Modifier.size(160.dp)
+        )
+
 
         Spacer(Modifier.height(8.dp))
 
@@ -83,6 +71,7 @@ private fun ContentCardItem(
             text = item.title,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -99,3 +88,4 @@ private fun ContentCardItem(
         )
     }
 }
+

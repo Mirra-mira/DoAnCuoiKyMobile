@@ -3,8 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="56dp"
-    android:background="#282828"
     android:paddingHorizontal="12dp">
+
+    <View
+        android:id="@+id/topStroke"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="?attr/colorError"
+        android:outlineSpotShadowColor="#786D6D"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imgThumbnail"
@@ -31,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No song playing"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textStyle="bold"
             android:singleLine="true"/>
 
@@ -40,17 +49,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tap to play"
-            android:textColor="#AAAAAA"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="12sp"
             android:singleLine="true"/>
     </LinearLayout>
 
     <ImageView
         android:id="@+id/btnPlayPause"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_media_play"
-        app:tint="#FFFFFF"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_play"
+        app:tint="?attr/colorOnBackground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

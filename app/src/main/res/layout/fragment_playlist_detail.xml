@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    >
 
     <View
         android:id="@+id/viewHeaderBg"
@@ -20,7 +20,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/ic_arrow_back"
-        app:tint="#FFFFFF"
+        app:tint="?attr/colorOnBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,9 +46,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Playlist Title"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnBackground"
         android:textSize="24sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/momotrustsans_semibold"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="58 songs"
-        android:textColor="#AAAAAA"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="14sp"
         android:layout_marginTop="4dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -71,8 +71,8 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginEnd="16dp"
-        android:src="@android:drawable/ic_media_play"
-        android:background="@drawable/bg_rounded_filled"
+        android:src="@null"
+        android:background="@drawable/ic_play_to_pause"
         app:tint="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@id/rvSongList"
         app:layout_constraintEnd_toEndOf="parent"

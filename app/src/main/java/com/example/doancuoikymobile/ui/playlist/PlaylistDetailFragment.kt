@@ -53,6 +53,10 @@ class PlaylistDetailFragment : Fragment() {
         // Tạo dữ liệu giả cho danh sách bài hát trong Playlist này
         val songData = createDummySongData()
 
+
+
+
+
         // TÁI SỬ DỤNG Adapter cũ, nhưng click handler lúc này có thể là rỗng (hoặc logic Play nhạc)
         val songListHandler: (LibraryModel) -> Unit = { song ->
 

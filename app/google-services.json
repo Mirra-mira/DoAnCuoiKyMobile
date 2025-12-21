@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "428113886094",
+    "firebase_url": "https://doancuoikymobile-8c685-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "doancuoikymobile-8c685",
+    "storage_bucket": "doancuoikymobile-8c685.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428113886094:android:707de1862803f0335302df",
+        "android_client_info": {
+          "package_name": "com.example.doancuoikymobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428113886094-252dpuu55od5ql03u6tc9a3pb5kpi2so.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.doancuoikymobile",
+            "certificate_hash": "d29fa7a81bb25e4aba0da08032309eb458245fb9"
+          }
+        },
+        {
+          "client_id": "428113886094-dv6bjtp9i7s9ppluifku5jbjt1a6oej6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4hVbVlir6ZWDdPZ3jDq6p8yAUTr8jWMc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428113886094-dv6bjtp9i7s9ppluifku5jbjt1a6oej6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

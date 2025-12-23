@@ -77,6 +77,18 @@ class SongRemoteDataSource(
      * - audioUrl is already set (obtained from StorageDataSource after upload)
      * - searchKeywords is populated (use SearchKeywordGenerator)
      */
+    suspend fun saveSong(song: Song): Boolean {
+        return try {
+            songsColl.document(song.songId).set(song).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Alias for saveSong - create or update a song in Firestore.
+     */
     suspend fun upsertSong(song: Song) {
         songsColl.document(song.songId).set(song).await()
     }
@@ -85,8 +97,13 @@ class SongRemoteDataSource(
      * Delete a song metadata from Firestore.
      * Note: Caller must separately delete the MP3 file from Firebase Storage.
      */
-    suspend fun deleteSong(songId: String) {
-        songsColl.document(songId).delete().await()
+    suspend fun deleteSong(songId: String): Boolean {
+        return try {
+            songsColl.document(songId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**

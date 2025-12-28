@@ -1,10 +1,10 @@
-// MyApplication.kt
 package com.example.doancuoikymobile
 
 import android.app.Application
-import android.content.Intent
-import com.example.doancuoikymobile.player.MediaPlayerService
-import com.example.doancuoikymobile.repository.SongRepository
+import com.google.firebase.FirebaseApp
+import com.example.doancuoikymobile.debug.DebugRunner
+import com.example.doancuoikymobile.repository.UserRepository
+import com.example.doancuoikymobile.data.remote.firebase.UserRemoteDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,25 +13,29 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        testBackendOnly()
+
+        // 1. Khởi tạo Firebase
+        FirebaseApp.initializeApp(this)
+
+        // 2. Khởi tạo hệ thống (Tạo tài khoản Admin nếu chưa có)
+        initializeSystemData()
+
+        // 3. Chạy các bài test Debug (Chỉ nên bật khi cần test)
+        // Lưu ý: DebugRunner nên được gọi sau khi Firebase đã sẵn sàng
+        DebugRunner.runAll()
     }
 
-    private fun testBackendOnly() {
-        val songRepository = SongRepository()
+    private fun initializeSystemData() {
+        val userRepo = UserRepository(UserRemoteDataSource())
 
+        // Sử dụng CoroutineScope để chạy tác vụ treo (suspend) trong Application class
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val song = songRepository.getSongById("8wvv3B9c")
-
-                if (song != null) {
-                    println("=== BE TEST OK ===")
-                    println("Title: ${song.title}")
-                    println("AudioUrl: ${song.audioUrl}")
-                } else {
-                    println("=== BE TEST FAIL: Song null ===")
-                }
+                // Gọi hàm khởi tạo Admin đã viết trong UserRepository
+                userRepo.initializeAppSystem()
             } catch (e: Exception) {
-                println("=== BE TEST ERROR: ${e.message} ===")
+                // Log lỗi nếu khởi tạo thất bại
+                android.util.Log.e("MyApplication", "Failed to init system: ${e.message}")
             }
         }
     }

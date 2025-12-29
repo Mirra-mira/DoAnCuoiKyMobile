@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.doancuoikymobile.ui.auth.AuthActivity // Import AuthActivity mới
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -20,11 +21,21 @@ class SplashActivity: ComponentActivity() {
             splashScreen.setKeepOnScreenCondition { true }
         }
         super.onCreate(savedInstanceState)
+
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 delay(3000)
 
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                // Giả định kiểm tra trạng thái đăng nhập (Bạn có thể thay đổi logic này sau)
+                val isLoggedIn = false // Mặc định là chưa đăng nhập
+
+                val targetActivity = if (isLoggedIn) {
+                    MainActivity::class.java
+                } else {
+                    AuthActivity::class.java // Chuyển sang màn hình Đăng nhập/Đăng ký
+                }
+
+                val intent = Intent(this@SplashActivity, targetActivity)
                 startActivity(intent)
                 finish()
             }

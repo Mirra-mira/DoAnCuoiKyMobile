@@ -12,20 +12,9 @@ data class Song(
     val songId: String = "",
     val title: String = "",
     val duration: Int = 0, 
-    val audioUrl: String = "", // Đây sẽ là link nhạc full từ API
+    val audioUrl: String = "", // Full MP3 URL (user uploaded hoặc API full track)
+    val previewUrl: String? = null, // Deezer 30s preview hoặc sample audio
     val coverUrl: String? = null,
     val mainArtistId: String? = null,
     val isOnline: Boolean = false // Thêm cờ này để biết nhạc từ API hay từ Firebase cá nhân
 ) : Serializable
-
-fun SaavnSong.toSong(): Song {
-    return Song(
-        songId = this.id,
-        title = this.name,
-        duration = this.duration ?: 0,
-        audioUrl = this.downloadUrl.lastOrNull()?.link ?: "",
-        coverUrl = this.image.lastOrNull()?.link,
-        mainArtistId = this.primaryArtists,
-        isOnline = true
-    )
-}

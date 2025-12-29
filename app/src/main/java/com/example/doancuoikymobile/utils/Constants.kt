@@ -1,7 +1,6 @@
 package com.example.doancuoikymobile.utils
 
 object Constants {
-    const val SAAVN_BASE_URL = "https://saavn.me/"
     const val NOTIFICATION_CHANNEL_ID = "music_player_channel"
     const val NOTIFICATION_ID = 1
     const val ACTION_PLAY = "ACTION_PLAY"

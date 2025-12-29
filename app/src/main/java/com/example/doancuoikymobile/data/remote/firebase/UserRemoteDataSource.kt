@@ -12,6 +12,22 @@ class UserRemoteDataSource(
 ) {
     private val usersColl = firestore.collection("users")
 
+    // Tạo Admin mặc định nếu chưa có (Dùng cho lần chạy đầu tiên)
+    suspend fun createAdminIfNotExist() {
+        val adminId = "admin_root"
+        val doc = usersColl.document(adminId).get().await()
+        if (!doc.exists()) {
+            val adminUser = User(
+                userId = adminId,
+                username = "admin",
+                email = "admin@app.com",
+                displayName = "System Administrator",
+                role = "admin"
+            )
+            usersColl.document(adminId).set(adminUser).await()
+        }
+    }
+
     suspend fun getUserOnce(userId: String): User? {
         val doc = usersColl.document(userId).get().await()
         return doc.toObject(User::class.java)?.copy(userId = doc.id)

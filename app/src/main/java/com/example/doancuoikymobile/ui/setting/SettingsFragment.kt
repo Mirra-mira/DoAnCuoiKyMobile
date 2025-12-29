@@ -1,15 +1,14 @@
 package com.example.doancuoikymobile.ui.settings
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.doancuoikymobile.R
-import com.example.doancuoikymobile.ui.auth.AuthActivity
+import com.google.android.material.materialswitch.MaterialSwitch
 
 class SettingsFragment : Fragment() {
 
@@ -24,15 +23,15 @@ class SettingsFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // 2. Xử lý nút Đăng xuất
-        view.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            // Thực hiện logout (xóa token, clear data nếu có...)
-
-            // Chuyển về màn hình AuthActivity (Đăng nhập)
-            val intent = Intent(requireContext(), AuthActivity::class.java)
-            // Xóa hết các Activity cũ trong Stack để user không Back lại được
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+        // 2. Xử lý Switch Tiết kiệm dữ liệu (Ví dụ)
+        val switchDataSaver = view.findViewById<MaterialSwitch>(R.id.switchDataSaver)
+        switchDataSaver.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                Toast.makeText(context, "Đã bật Tiết kiệm dữ liệu", Toast.LENGTH_SHORT).show()
+                // TODO: Lưu trạng thái vào SharedPreferences
+            } else {
+                Toast.makeText(context, "Đã tắt Tiết kiệm dữ liệu", Toast.LENGTH_SHORT).show()
+            }
         }
 
         return view

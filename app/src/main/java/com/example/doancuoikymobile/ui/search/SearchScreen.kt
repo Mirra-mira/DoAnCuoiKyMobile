@@ -7,6 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import com.example.doancuoikymobile.repository.Status
+import com.example.doancuoikymobile.viewmodel.SearchViewModel
 
 data class SearchHistoryItem(
     val query: String
@@ -53,24 +57,45 @@ sealed class SearchResultItem {
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
+    viewModel: SearchViewModel,
     onSongClick: (String) -> Unit = {},
     onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> }) {
-    // State management đơn giản
+    // State from ViewModel
+    val searchState by viewModel.searchState.collectAsState()
+    val currentQuery by viewModel.currentQuery.collectAsState()
+
+    // Local UI state
     var searchQuery by remember { mutableStateOf("") }
     var searchHistory by remember { mutableStateOf(getMockHistory()) }
     var suggestions by remember { mutableStateOf<List<SearchSuggestion>>(emptyList()) }
-    var searchResults by remember { mutableStateOf<List<SearchResultItem>>(emptyList()) }
     var currentFilter by remember { mutableStateOf(SearchFilter.ALL) }
-    var isLoading by remember { mutableStateOf(false) }
 
-    // Effect để load suggestions khi query thay đổi
+    // Convert searchState to searchResults
+    val searchResults = remember(searchState, currentFilter) {
+        when (searchState.status) {
+            Status.SUCCESS -> {
+                val songs = searchState.data?.map { viewModel.toSearchResultItem(it) } ?: emptyList()
+                when (currentFilter) {
+                    SearchFilter.ALL -> songs // Only show songs for now (Deezer API)
+                    SearchFilter.SONG -> songs
+                    SearchFilter.ARTIST -> emptyList() // TODO: Add artist search later
+                    SearchFilter.PLAYLIST -> emptyList() // TODO: Add playlist search later
+                }
+            }
+            else -> emptyList()
+        }
+    }
+
+    val isLoading = searchState.status == Status.LOADING
+
+    // Effect để load suggestions khi query thay đổi (debounce)
     LaunchedEffect(searchQuery) {
         if (searchQuery.isNotEmpty()) {
             delay(300) // Debounce
             suggestions = getMockSuggestions(searchQuery)
         } else {
             suggestions = emptyList()
-            searchResults = emptyList()
+            viewModel.clearSearch()
         }
     }
 
@@ -89,13 +114,13 @@ fun SearchScreen(
                     searchHistory = listOf(SearchHistoryItem(query)) +
                             searchHistory.filter { it.query != query }.take(9)
 
-                    // Simulate search
-                    isLoading = true
+                    // Clear suggestions
                     suggestions = emptyList()
 
-                    // Mock search results
-                    searchResults = getMockSearchResults(query, currentFilter)
-                    isLoading = false
+                    // Call ViewModel to search
+                    viewModel.searchSongs(query)
+                } else {
+                    viewModel.clearSearch()
                 }
             },
             modifier = Modifier
@@ -104,12 +129,12 @@ fun SearchScreen(
         )
 
         // Filter Chips (chỉ hiện khi có results)
-        if (searchResults.isNotEmpty()) {
+        if (searchResults.isNotEmpty() || searchState.status == Status.SUCCESS) {
             FilterChips(
                 currentFilter = currentFilter,
                 onFilterChange = { filter ->
                     currentFilter = filter
-                    searchResults = getMockSearchResults(searchQuery, filter)
+                    // Results will update automatically via remember
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -119,6 +144,27 @@ fun SearchScreen(
         when {
             isLoading -> LoadingState()
 
+            searchState.status == Status.ERROR -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Lỗi tìm kiếm",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = searchState.message ?: "Đã xảy ra lỗi",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
+            }
+
             searchQuery.isEmpty() && searchHistory.isEmpty() -> EmptyState()
 
             searchQuery.isEmpty() && searchHistory.isNotEmpty() -> {
@@ -126,7 +172,7 @@ fun SearchScreen(
                     history = searchHistory,
                     onItemClick = { query ->
                         searchQuery = query
-                        searchResults = getMockSearchResults(query, currentFilter)
+                        viewModel.searchSongs(query)
                     },
                     onRemoveItem = { query ->
                         searchHistory = searchHistory.filter { it.query != query }
@@ -137,12 +183,12 @@ fun SearchScreen(
                 )
             }
 
-            searchQuery.isNotEmpty() && suggestions.isNotEmpty() && searchResults.isEmpty() -> {
+            searchQuery.isNotEmpty() && suggestions.isNotEmpty() && searchResults.isEmpty() && !isLoading -> {
                 SuggestionsList(
                     suggestions = suggestions,
                     onSuggestionClick = { text ->
                         searchQuery = text
-                        searchResults = getMockSearchResults(text, currentFilter)
+                        viewModel.searchSongs(text)
                     },
                     onArrowClick = { text ->
                         searchQuery = text
@@ -151,9 +197,24 @@ fun SearchScreen(
             }
 
             searchResults.isNotEmpty() -> {
-                SearchResultsList(results = searchResults,
+                SearchResultsList(
+                    results = searchResults,
                     onSongClick = onSongClick,
-                    onPlaylistClick = onPlaylistClick)
+                    onPlaylistClick = onPlaylistClick
+                )
+            }
+
+            searchQuery.isNotEmpty() && searchResults.isEmpty() && !isLoading && searchState.status == Status.SUCCESS -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Không tìm thấy kết quả",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
     }
@@ -173,34 +234,3 @@ private fun getMockSuggestions(query: String) = listOf(
     SearchSuggestion("$query - Playlist"),
     SearchSuggestion("$query - Artist"),
 )
-
-private fun getMockSearchResults(
-    query: String,
-    filter: SearchFilter
-): List<SearchResultItem> {
-    val songs = listOf(
-        SearchResultItem.Song("1", "Lạc Trôi", "Sơn Tùng M-TP", "4:25"),
-        SearchResultItem.Song("2", "Chúng Ta Của Hiện Tại", "Sơn Tùng M-TP", "5:12"),
-        SearchResultItem.Song("3", "Bài Này Chill Phết", "Đen Vâu", "4:49"),
-        SearchResultItem.Song("4", "Đen Đá Không Đường", "Đen Vâu", "4:14")
-    )
-
-    val artists = listOf(
-        SearchResultItem.Artist("a1", "Sơn Tùng M-TP", "Nghệ sĩ"),
-        SearchResultItem.Artist("a2", "Đen Vâu", "Nghệ sĩ"),
-        SearchResultItem.Artist("a3", "Hoàng Thùy Linh", "Nghệ sĩ")
-    )
-
-    val playlists = listOf(
-        SearchResultItem.Playlist("p1", "V-Pop Hits", "100 bài hát"),
-        SearchResultItem.Playlist("p2", "Chill V-Pop", "50 bài hát"),
-        SearchResultItem.Playlist("p3", "Acoustic Vietnam", "75 bài hát")
-    )
-
-    return when (filter) {
-        SearchFilter.ALL -> songs + artists + playlists
-        SearchFilter.SONG -> songs
-        SearchFilter.ARTIST -> artists
-        SearchFilter.PLAYLIST -> playlists
-    }
-}

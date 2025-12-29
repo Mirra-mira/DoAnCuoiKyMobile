@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.viewModels
 import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
 import com.example.doancuoikymobile.utils.NavigationHelper
+import com.example.doancuoikymobile.viewmodel.SearchViewModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,6 +26,8 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class SearchFragment : Fragment() {
+    private val viewModel: SearchViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +48,7 @@ class SearchFragment : Fragment() {
             setContent {
                 DoAnCuoiKyMobileTheme(dynamicColor = false) {
                     SearchScreen(
+                        viewModel = viewModel,
                         onSongClick = { songTitle ->
                             NavigationHelper.openPlayer(this@SearchFragment, songTitle)
                         },

@@ -7,21 +7,22 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.doancuoikymobile.R
-
-private const val ARG_TITLE = "song_title"
+import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import kotlinx.coroutines.launch
 
 class PlayerFragment : Fragment() {
 
-    private var songTitle: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Lấy tiêu đề bài hát được truyền từ PlaylistDetailFragment
-        arguments?.let {
-            songTitle = it.getString(ARG_TITLE)
-        }
-    }
+    private val viewModel: PlayerViewModel by viewModels()
+    private lateinit var btnPlay: ImageView
+    private lateinit var progressBar: LinearProgressIndicator
+    private lateinit var tvTitle: TextView
+    private lateinit var tvArtist: TextView
+    private lateinit var tvCurrentTime: TextView
+    private lateinit var tvTotalTime: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,34 +30,72 @@ class PlayerFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player, container, false)
 
-        // Cập nhật tiêu đề
-        view.findViewById<TextView>(R.id.tvFullPlayerTitle)?.text = songTitle
+        // Ánh xạ View đúng theo XML bạn đã gửi
+        tvTitle = view.findViewById(R.id.tvFullPlayerTitle)
+        tvArtist = view.findViewById(R.id.tvArtist) // ID từ XML của bạn
+        btnPlay = view.findViewById(R.id.btnMainPlay)
+        progressBar = view.findViewById(R.id.progressBar) // ID từ XML của bạn
+        tvCurrentTime = view.findViewById(R.id.tvCurrentTime)
+        tvTotalTime = view.findViewById(R.id.tvTotalTime)
 
-        // Xử lý nút Close/Back để quay lại màn hình trước đó
         view.findViewById<ImageView>(R.id.btnClosePlayer)?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        val btnPlay = view.findViewById<ImageView>(R.id.btnMainPlay)
-        var isPlaying = btnPlay.isSelected
-
+        observeViewModel()
 
         btnPlay.setOnClickListener {
-            isPlaying = !isPlaying
-            btnPlay.isSelected = isPlaying
+            viewModel.togglePlayPause()
         }
-
 
         return view
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(title: String) =
-            PlayerFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_TITLE, title)
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Quan sát bài hát hiện tại từ ViewModel
+            launch {
+                viewModel.currentSong.collect { song ->
+                    song?.let {
+                        tvTitle.text = it.title
+                        // Vì model Song không có artistName, tạm để trống hoặc ID
+                        tvArtist.text = it.mainArtistId ?: ""
+                    }
                 }
             }
+            // Trạng thái Play/Pause
+            launch {
+                viewModel.isPlaying.collect { isPlaying ->
+                    btnPlay.setImageResource(
+                        if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+                    )
+                }
+            }
+            launch {
+                viewModel.progress.collect { pos ->
+                    progressBar.progress = pos.toInt()
+                    tvCurrentTime.text = formatTime(pos)
+                }
+            }
+            launch {
+                viewModel.duration.collect { dur ->
+                    if (dur > 0) {
+                        progressBar.max = dur.toInt()
+                        tvTotalTime.text = formatTime(dur)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun formatTime(ms: Long): String {
+        val minutes = (ms / 1000) / 60
+        val seconds = (ms / 1000) % 60
+        return String.format("%d:%02d", minutes, seconds)
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(title: String) = PlayerFragment()
     }
 }

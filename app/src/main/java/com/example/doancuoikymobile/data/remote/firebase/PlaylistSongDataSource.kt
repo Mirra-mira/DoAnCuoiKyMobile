@@ -2,16 +2,13 @@ package com.example.doancuoikymobile.data.remote.firebase
 
 import com.example.doancuoikymobile.model.PlaylistSong
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.channels.awaitClose
 
 /**
- * Manages the many-to-many relationship between playlists and songs.
- * - Stores PlaylistSong documents (playlistId, songId, orderIndex)
- * - Does NOT manage the playlist or song metadata (delegate to PlaylistRemoteDataSource/SongRemoteDataSource)
+ * Quản lý mối quan hệ many-to-many giữa playlists và bài hát.
  */
 class PlaylistSongDataSource(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -19,7 +16,7 @@ class PlaylistSongDataSource(
     private val coll = firestore.collection("playlist_songs")
 
     /**
-     * Add a song to a playlist.
+     * Thêm bài hát vào playlist.
      */
     suspend fun addSongToPlaylist(playlistId: String, songId: String, orderIndex: Int = 0) {
         val docId = "${playlistId}_$songId"
@@ -28,7 +25,7 @@ class PlaylistSongDataSource(
     }
 
     /**
-     * Remove a song from a playlist.
+     * Xóa bài hát khỏi playlist.
      */
     suspend fun removeSongFromPlaylist(playlistId: String, songId: String) {
         val docId = "${playlistId}_$songId"
@@ -36,11 +33,11 @@ class PlaylistSongDataSource(
     }
 
     /**
-     * Get all songs in a playlist (real-time stream, ordered by orderIndex).
+     * Lắng nghe danh sách bài hát trong playlist (Real-time).
+     * LƯU Ý: Đã xóa .orderBy() để tránh lỗi yêu cầu Index từ Firebase.
      */
     fun watchPlaylistSongs(playlistId: String): Flow<List<PlaylistSong>> = callbackFlow {
         val registration = coll.whereEqualTo("playlistId", playlistId)
-            .orderBy("orderIndex", Query.Direction.ASCENDING)
             .addSnapshotListener { snap, error ->
                 if (error != null) {
                     close(error)
@@ -55,7 +52,7 @@ class PlaylistSongDataSource(
     }
 
     /**
-     * Update the order index of a song in a playlist (for reordering).
+     * Cập nhật vị trí bài hát.
      */
     suspend fun updateSongOrderInPlaylist(playlistId: String, songId: String, newOrderIndex: Int) {
         val docId = "${playlistId}_$songId"
@@ -63,7 +60,7 @@ class PlaylistSongDataSource(
     }
 
     /**
-     * Check if a song exists in a playlist.
+     * Kiểm tra bài hát đã có trong playlist chưa.
      */
     suspend fun isSongInPlaylist(playlistId: String, songId: String): Boolean {
         val docId = "${playlistId}_$songId"

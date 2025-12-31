@@ -16,5 +16,6 @@ data class Song(
     val previewUrl: String? = null, // Deezer 30s preview hoặc sample audio
     val coverUrl: String? = null,
     val mainArtistId: String? = null,
+    val artistName: String? = null, // Artist name for display
     val isOnline: Boolean = false // Thêm cờ này để biết nhạc từ API hay từ Firebase cá nhân
 ) : Serializable

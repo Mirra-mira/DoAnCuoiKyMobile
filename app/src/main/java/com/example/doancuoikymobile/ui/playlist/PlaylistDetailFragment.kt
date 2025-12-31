@@ -58,11 +58,10 @@ class PlaylistDetailFragment : Fragment() {
             val songToPlay = viewModel.songs.value.find { it.songId == model.id }
             songToPlay?.let { song ->
                 PlayerManager.playSong(song)
-                // Gọi showMiniPlayer với title và artistId
                 (requireActivity() as? MainActivity)?.showMiniPlayer(song.title, song.mainArtistId)
 
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.frameLayout, PlayerFragment.newInstance(song.title))
+                    .replace(R.id.frameLayout, PlayerFragment.newInstance(song))
                     .addToBackStack("PlaylistDetail")
                     .commit()
             }

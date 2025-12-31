@@ -34,6 +34,7 @@ fun DeezerTrack.toSong(): Song {
         previewUrl = this.preview, // Deezer preview URL (30s MP3)
         coverUrl = this.album?.cover_big ?: this.album?.cover, // Use bigger cover if available
         mainArtistId = this.artist?.id.toString(), // Store artist ID as string
+        artistName = this.artist?.name, // Artist name for display
         isOnline = true // This is from online API
     )
 }
@@ -52,6 +53,7 @@ fun DeezerTrackResponse.toSong(): Song {
         previewUrl = this.preview, // Deezer preview only
         coverUrl = this.album?.cover_big ?: this.album?.cover,
         mainArtistId = this.artist?.id.toString(),
+        artistName = this.artist?.name, // Artist name for display
         isOnline = true
     )
 }

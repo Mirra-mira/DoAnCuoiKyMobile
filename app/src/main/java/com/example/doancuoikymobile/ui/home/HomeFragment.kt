@@ -36,8 +36,8 @@ class HomeFragment : Fragment() {
 
                     HomeScreen(
                         sections = sectionsState,
-                        onSongClick = { title ->
-                            NavigationHelper.openPlayer(this@HomeFragment, title)
+                        onSongClick = { song ->
+                            NavigationHelper.openPlayer(this@HomeFragment, song)
                         },
                         onPlaylistClick = { title, subtitle ->
                             NavigationHelper.openPlaylist(this@HomeFragment, title, subtitle)

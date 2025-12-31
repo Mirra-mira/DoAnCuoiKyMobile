@@ -7,23 +7,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.channels.awaitClose
 
-/**
- * UPDATED FILE: SongRemoteDataSource.kt
- *
- * Manages song metadata stored in Firestore.
- * - Reads/writes song documents (title, duration, audioUrl, coverUrl, mainArtistId, searchKeywords)
- * - audioUrl points to a Firebase Storage signed URL
- * - searchKeywords enables Firestore search queries
- * - Does NOT handle file uploads (delegate to StorageDataSource)
- */
 class SongRemoteDataSource(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     private val songsColl = firestore.collection("songs")
 
-    /**
-     * Fetch a single song by ID from Firestore.
-     */
     suspend fun getSongOnce(songId: String): Song? {
         val doc = songsColl.document(songId).get().await()
         return if (doc.exists()) {
@@ -33,10 +21,6 @@ class SongRemoteDataSource(
         }
     }
 
-    /**
-     * Real-time stream of all songs in Firestore.
-     * Useful for browsing library, search results, etc.
-     */
     fun watchAllSongs(): Flow<List<Song>> = callbackFlow {
         val registration = songsColl.addSnapshotListener { snap, error ->
             if (error != null) {
@@ -51,10 +35,6 @@ class SongRemoteDataSource(
         awaitClose { registration.remove() }
     }
 
-    /**
-     * Search songs by query using searchKeywords array.
-     * Firestore query: whereArrayContains("searchKeywords", query.lowercase())
-     */
     fun searchSongs(query: String): Flow<List<Song>> = callbackFlow {
         val registration = songsColl
             .whereArrayContains("searchKeywords", query.lowercase())
@@ -71,12 +51,6 @@ class SongRemoteDataSource(
         awaitClose { registration.remove() }
     }
 
-    /**
-     * Create or update a song in Firestore.
-     * Caller must ensure:
-     * - audioUrl is already set (obtained from StorageDataSource after upload)
-     * - searchKeywords is populated (use SearchKeywordGenerator)
-     */
     suspend fun saveSong(song: Song): Boolean {
         return try {
             songsColl.document(song.songId).set(song).await()
@@ -86,23 +60,42 @@ class SongRemoteDataSource(
         }
     }
 
-    /**
-     * Alias for saveSong - create or update a song in Firestore.
-     */
+    suspend fun saveSongIfNotExists(song: Song): Boolean {
+        return try {
+            val existingDoc = songsColl.document(song.songId).get().await()
+            if (!existingDoc.exists()) {
+                songsColl.document(song.songId).set(song).await()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun upsertSong(song: Song) {
         songsColl.document(song.songId).set(song).await()
     }
 
-    /**
-     * Delete a song metadata from Firestore.
-     * Note: Caller must separately delete the MP3 file from Firebase Storage.
-     */
     suspend fun deleteSong(songId: String): Boolean {
         return try {
             songsColl.document(songId).delete().await()
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    suspend fun searchSongsOnce(query: String): List<Song> {
+        return try {
+            val snapshot = songsColl
+                .whereArrayContains("searchKeywords", query.lowercase())
+                .get().await()
+            val firebaseSongs = snapshot.documents.mapNotNull {
+                it.toObject(Song::class.java)?.copy(songId = it.id)
+            }
+            firebaseSongs
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 

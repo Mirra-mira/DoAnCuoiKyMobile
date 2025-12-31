@@ -36,6 +36,15 @@ class AuthViewModel(private val repository: AuthRepository = AuthRepository()) :
         }
     }
 
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = repository.signInWithGoogle(idToken)
+            _authState.value = result
+            _isLoading.value = false
+        }
+    }
+
     fun clearState() {
         _authState.value = null
     }

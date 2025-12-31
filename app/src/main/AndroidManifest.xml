@@ -24,8 +24,8 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".ui.activity.MainActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:name=".ui.activity.SplashActivity"
+            android:theme="@style/Theme.DoAnCuoiKyMobile.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,13 +34,13 @@
         </activity>
 
         <activity
-            android:name=".ui.auth.AuthActivity"
+            android:name=".ui.activity.MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
-            android:name=".ui.activity.SplashActivity"
-            android:theme="@style/Theme.DoAnCuoiKyMobile.SplashScreen"
+            android:name=".ui.auth.AuthActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <service

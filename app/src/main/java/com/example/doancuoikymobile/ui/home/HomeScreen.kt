@@ -6,12 +6,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.doancuoikymobile.model.Song
 
 @Composable
 fun HomeScreen(
     sections: List<HomeSection>,
     modifier: Modifier = Modifier,
-    onSongClick: (String) -> Unit = {},
+    onSongClick: (Song) -> Unit = {},
     onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> }
 ) {
     LazyColumn(
@@ -29,14 +30,29 @@ fun HomeScreen(
                     }
                 }
 
+                is HomeSection.RecentlyPlayed -> {
+                    item {
+                        RecentlyPlayedSection(
+                            items = section.items,
+                            onItemClick = { item ->
+                                if (item.type == ContentType.SONG && item.song != null) {
+                                    onSongClick(item.song)
+                                } else {
+                                    onPlaylistClick(item.title, item.subtitle)
+                                }
+                            }
+                        )
+                    }
+                }
+
                 is HomeSection.CustomSection -> {
                     item {
                         CustomSection(
                             title = section.title,
                             items = section.items,
                             onItemClick = { item ->
-                                if (item.type == ContentType.SONG) {
-                                    onSongClick(item.title)
+                                if (item.type == ContentType.SONG && item.song != null) {
+                                    onSongClick(item.song)
                                 } else {
                                     onPlaylistClick(item.title, item.subtitle)
                                 }

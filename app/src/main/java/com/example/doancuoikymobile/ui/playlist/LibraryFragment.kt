@@ -64,30 +64,26 @@ class LibraryFragment : Fragment() {
         rvLibrary.layoutManager = LinearLayoutManager(context)
         rvLibrary.adapter = libraryAdapter
 
-        // 3. Lấy dữ liệu từ Firestore (tự động lấy theo User ID hiện tại)
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "debug_user_1"
-        viewModel.loadLibraryData(userId)
-
-        // 4. Quan sát dữ liệu Real-time
-        observeData()
-
-        // Xử lý chuyển tab lọc (Playlists/Artists)
-        btnPlaylists.setOnClickListener {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            viewModel.loadLibraryData(currentUser.uid)
+            observeData()
             updateFilterUI(true)
-            val models = viewModel.playlists.value.map { LibraryModel(it.playlistId, it.name, "Playlist") }
-            loadData(models)
+
+            btnPlaylists.setOnClickListener {
+                updateFilterUI(true)
+                val models = viewModel.playlists.value.map { LibraryModel(it.playlistId, it.name, "Playlist") }
+                loadData(models)
+            }
+
+            btnArtists.setOnClickListener {
+                updateFilterUI(false)
+                val models = viewModel.artists.value.map { LibraryModel(it.artistId, it.name, "Artist") }
+                loadData(models)
+            }
+
+            btnSort.setOnClickListener { sortList() }
         }
-
-        btnArtists.setOnClickListener {
-            updateFilterUI(false)
-            val models = viewModel.artists.value.map { LibraryModel(it.artistId, it.name, "Artist") }
-            loadData(models)
-        }
-
-        btnSort.setOnClickListener { sortList() }
-
-        // Mặc định chọn tab Playlists khi khởi tạo
-        updateFilterUI(true)
 
         return view
     }

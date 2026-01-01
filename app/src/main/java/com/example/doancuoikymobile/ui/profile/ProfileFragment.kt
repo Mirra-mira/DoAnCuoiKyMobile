@@ -117,6 +117,20 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // FIX: Pass the required 'onItemClick' parameter.
+        // For now, it can be an empty lambda if you don't need to handle clicks here.
+        rvProfile.adapter = LibraryAdapter(profileData) {
+
+
+            }
+
+        val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
+        btnEditProfile.setOnClickListener {
+            // Navigate to EditProfileFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, EditProfileFragment())
+                .addToBackStack(null) // Cho phép back về ProfileFragment
+                .commit()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 libraryViewModel.playlists.collect { playlists ->

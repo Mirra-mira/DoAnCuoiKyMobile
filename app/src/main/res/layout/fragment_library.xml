@@ -36,6 +36,7 @@
         app:layout_constraintTop_toTopOf="@id/cardAvatar" />
 
     <ImageView
+        android:id="@+id/btnCreatePlaylist"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@android:drawable/ic_input_add"
@@ -68,10 +69,22 @@
             android:id="@+id/btnArtists"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_rounded_border"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:text="Artists"
+            android:textColor="?attr/colorOnSurface"
+            android:fontFamily="@font/momotrustsans_semibold"/>
+
+        <TextView
+            android:id="@+id/btnSongs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rounded_border"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Songs"
             android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/momotrustsans_semibold"/>
 

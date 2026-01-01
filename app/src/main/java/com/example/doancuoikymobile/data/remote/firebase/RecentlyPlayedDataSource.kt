@@ -21,7 +21,7 @@ class RecentlyPlayedDataSource(
     fun watchUserRecent(userId: String, limit: Long = 50): Flow<List<RecentlyPlayed>> = callbackFlow {
         val registration = firestore.collection("users").document(userId)
             .collection("recentlyPlayed")
-            .orderBy("playedAt", Query.Direction.DESCENDING)
+            .orderBy("playedAt", Query.Direction.DESCENDING)  // Đảm bảo sắp xếp theo thời gian giảm dần (mới nhất trước)
             .limit(limit)
             .addSnapshotListener { snap, error ->
                 if (error != null) { close(error); return@addSnapshotListener }

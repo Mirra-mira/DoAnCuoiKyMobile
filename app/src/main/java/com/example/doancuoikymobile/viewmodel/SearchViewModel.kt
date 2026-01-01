@@ -9,17 +9,21 @@ import com.example.doancuoikymobile.model.Artist
 import com.example.doancuoikymobile.model.Playlist
 import com.example.doancuoikymobile.player.getDurationFormatted
 import com.example.doancuoikymobile.repository.Resource
+import com.example.doancuoikymobile.repository.Status
 import com.example.doancuoikymobile.repository.SongRepository
 import com.example.doancuoikymobile.repository.ArtistRepository
 import com.example.doancuoikymobile.repository.PlaylistRepository
+import com.example.doancuoikymobile.repository.AuthRepository
 import com.example.doancuoikymobile.data.remote.firebase.ArtistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.PlaylistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.PlaylistSongDataSource
 import com.example.doancuoikymobile.ui.search.SearchResultItem
+import com.example.doancuoikymobile.ui.search.SearchFilter
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -29,11 +33,13 @@ class SearchViewModel(
         PlaylistRemoteDataSource(FirebaseFirestore.getInstance()),
         PlaylistSongDataSource(FirebaseFirestore.getInstance())
     ),
+    private val authRepository: AuthRepository = AuthRepository(),
     val context: Context? = null
 ) : ViewModel() {
 
     private val prefs: SharedPreferences? = context?.getSharedPreferences("search_history", Context.MODE_PRIVATE)
 
+    // Raw search results from repositories
     private val _searchSongs = MutableStateFlow<Resource<List<Song>>>(Resource.loading(null))
     val searchSongs: StateFlow<Resource<List<Song>>> = _searchSongs.asStateFlow()
 
@@ -45,6 +51,9 @@ class SearchViewModel(
 
     private val _currentQuery = MutableStateFlow<String>("")
     val currentQuery: StateFlow<String> = _currentQuery.asStateFlow()
+
+    private val _currentFilter = MutableStateFlow<SearchFilter>(SearchFilter.ALL)
+    val currentFilter: StateFlow<SearchFilter> = _currentFilter.asStateFlow()
 
     private val _searchHistory = MutableStateFlow<List<String>>(emptyList())
     val searchHistory: StateFlow<List<String>> = _searchHistory.asStateFlow()
@@ -78,16 +87,22 @@ class SearchViewModel(
         prefs?.edit()?.putStringSet("history", limited.toSet())?.apply()
     }
 
+    fun setFilter(filter: SearchFilter) {
+        _currentFilter.value = filter
+    }
+
     fun searchAll(query: String) {
         if (query.isBlank()) {
             _searchSongs.value = Resource.success(emptyList())
             _searchArtists.value = Resource.success(emptyList())
             _searchPlaylists.value = Resource.success(emptyList())
             _currentQuery.value = ""
+            _currentFilter.value = SearchFilter.ALL
             return
         }
 
         _currentQuery.value = query
+        _currentFilter.value = SearchFilter.ALL
         saveSearchHistory(query)
         
         searchSongsOnly(query)
@@ -121,8 +136,17 @@ class SearchViewModel(
         _searchPlaylists.value = Resource.loading(null)
         viewModelScope.launch {
             try {
-                // Search playlists by name (filtered client-side for now)
-                _searchPlaylists.value = Resource.success(emptyList())
+                val currentUser = authRepository.getCurrentUser()
+                if (currentUser != null) {
+                    playlistRepository.watchUserPlaylists(currentUser.uid).collect { playlists ->
+                        val filtered = playlists.filter { 
+                            it.name.contains(query, ignoreCase = true)
+                        }
+                        _searchPlaylists.value = Resource.success(filtered)
+                    }
+                } else {
+                    _searchPlaylists.value = Resource.success(emptyList())
+                }
             } catch (e: Exception) {
                 _searchPlaylists.value = Resource.error(e.message ?: "Error", null)
             }
@@ -131,9 +155,52 @@ class SearchViewModel(
 
     fun clearSearch() {
         _currentQuery.value = ""
+        _currentFilter.value = SearchFilter.ALL
         _searchSongs.value = Resource.success(emptyList())
         _searchArtists.value = Resource.success(emptyList())
         _searchPlaylists.value = Resource.success(emptyList())
+    }
+
+    /**
+     * Get filtered songs based on current filter
+     */
+    fun getFilteredSongs(): List<Song> {
+        return when (_currentFilter.value) {
+            SearchFilter.SONG -> _searchSongs.value.data ?: emptyList()
+            SearchFilter.ALL -> _searchSongs.value.data ?: emptyList()
+            else -> emptyList()
+        }
+    }
+
+    /**
+     * Get filtered artists based on current filter
+     */
+    fun getFilteredArtists(): List<Artist> {
+        return when (_currentFilter.value) {
+            SearchFilter.ARTIST -> _searchArtists.value.data ?: emptyList()
+            SearchFilter.ALL -> _searchArtists.value.data ?: emptyList()
+            else -> emptyList()
+        }
+    }
+
+    /**
+     * Get filtered playlists based on current filter
+     */
+    fun getFilteredPlaylists(): List<Playlist> {
+        return when (_currentFilter.value) {
+            SearchFilter.PLAYLIST -> _searchPlaylists.value.data ?: emptyList()
+            SearchFilter.ALL -> _searchPlaylists.value.data ?: emptyList()
+            else -> emptyList()
+        }
+    }
+
+    /**
+     * Get overall loading state considering all search types
+     */
+    fun isAnyLoading(): Boolean {
+        return _searchSongs.value.status == Status.LOADING ||
+               _searchArtists.value.status == Status.LOADING ||
+               _searchPlaylists.value.status == Status.LOADING
     }
 
     fun toSearchResultItem(song: Song): SearchResultItem.Song {

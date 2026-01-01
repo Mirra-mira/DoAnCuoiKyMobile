@@ -66,13 +66,13 @@ fun SearchScreen(
     val searchArtists by viewModel.searchArtists.collectAsState()
     val searchPlaylists by viewModel.searchPlaylists.collectAsState()
     val currentQuery by viewModel.currentQuery.collectAsState()
+    val currentFilter by viewModel.currentFilter.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     val searchHistoryState by viewModel.searchHistory.collectAsState()
     var suggestions by remember { mutableStateOf<List<SearchSuggestion>>(emptyList()) }
-    var currentFilter by remember { mutableStateOf(SearchFilter.ALL) }
 
-    // Convert search results based on filter
+    // Convert search results based on filter from ViewModel
     val searchResults = remember(searchSongs, searchArtists, searchPlaylists, currentFilter) {
         val allResults = mutableListOf<SearchResultItem>()
         when (currentFilter) {
@@ -88,29 +88,20 @@ fun SearchScreen(
                 }
             }
             SearchFilter.SONG -> {
-                if (searchSongs.status == Status.SUCCESS) {
-                    allResults.addAll(searchSongs.data?.map { viewModel.toSearchResultItem(it) } ?: emptyList())
-                }
+                allResults.addAll(viewModel.getFilteredSongs().map { viewModel.toSearchResultItem(it) })
             }
             SearchFilter.ARTIST -> {
-                if (searchArtists.status == Status.SUCCESS) {
-                    allResults.addAll(searchArtists.data?.map { viewModel.toSearchResultItem(it) } ?: emptyList())
-                }
+                allResults.addAll(viewModel.getFilteredArtists().map { viewModel.toSearchResultItem(it) })
             }
             SearchFilter.PLAYLIST -> {
-                if (searchPlaylists.status == Status.SUCCESS) {
-                    allResults.addAll(searchPlaylists.data?.map { viewModel.toSearchResultItem(it) } ?: emptyList())
-                }
+                allResults.addAll(viewModel.getFilteredPlaylists().map { viewModel.toSearchResultItem(it) })
             }
         }
         allResults
     }
 
-    val songMap = remember(searchSongs) {
-        searchSongs.data?.associateBy { it.songId } ?: emptyMap()
-    }
-
-    val isLoading = searchSongs.status == Status.LOADING
+    // Check if any category is loading
+    val isLoading = viewModel.isAnyLoading()
 
     // Effect để load suggestions khi query thay đổi (debounce)
     LaunchedEffect(searchQuery) {
@@ -150,8 +141,7 @@ fun SearchScreen(
             FilterChips(
                 currentFilter = currentFilter,
                 onFilterChange = { filter ->
-                    currentFilter = filter
-                    // Results will update automatically via remember
+                    viewModel.setFilter(filter)
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -216,8 +206,12 @@ fun SearchScreen(
             searchResults.isNotEmpty() -> {
                 SearchResultsList(
                     results = searchResults,
-                    songMap = songMap,
-                    onSongClick = onSongClick,
+                    songs = searchSongs.data ?: emptyList(),
+                    artists = searchArtists.data ?: emptyList(),
+                    playlists = searchPlaylists.data ?: emptyList(),
+                    onSongClick = { song ->
+                        onSongClick(song)
+                    },
                     onPlaylistClick = onPlaylistClick
                 )
             }

@@ -2,6 +2,7 @@ package com.example.doancuoikymobile.data.remote.api
 
 import com.example.doancuoikymobile.model.Artist
 import com.example.doancuoikymobile.model.Song
+import com.example.doancuoikymobile.utils.SearchKeywordGenerator
 
 /**
  * Mapper for converting Deezer API responses to domain models
@@ -65,8 +66,8 @@ fun DeezerArtist.toArtist(): Artist {
     return Artist(
         artistId = this.id.toString(),
         name = this.name,
-        pictureUrl = this.picture_big ?: this.picture, // Use bigger picture if available
-        searchKeywords = this.name.split(" ") // Simple keyword extraction
+        pictureUrl = this.picture_big ?: this.picture,
+        searchKeywords = SearchKeywordGenerator.generateKeywords(this.name)
     )
 }
 

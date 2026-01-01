@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.channels.awaitClose
+import android.util.Log
 
 class PlaylistRemoteDataSource(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -18,14 +19,28 @@ class PlaylistRemoteDataSource(
     }
 
     fun watchUserPlaylists(userId: String): Flow<List<Playlist>> = callbackFlow {
-        val registration = coll.whereEqualTo("userId", userId)
-            .addSnapshotListener { snap, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
-                val list = snap?.documents?.mapNotNull { it.toObject(Playlist::class.java)?.copy(playlistId = it.id) } ?: emptyList()
-                trySend(list).isSuccess
+    val registration = coll.whereEqualTo("userId", userId)
+        .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+        .addSnapshotListener { snap, error ->
+            if (error != null) {
+                Log.e("PlaylistRemote", "watchUserPlaylists error", error)
+
+                trySend(emptyList()).isSuccess
+                return@addSnapshotListener
             }
-        awaitClose { registration.remove() }
-    }
+
+            val list = snap?.documents
+                ?.mapNotNull {
+                    it.toObject(Playlist::class.java)
+                        ?.copy(playlistId = it.id)
+                }
+                ?: emptyList()
+
+            trySend(list).isSuccess
+        }
+
+    awaitClose { registration.remove() }
+}
 
     suspend fun upsertPlaylist(playlist: Playlist) {
         coll.document(playlist.playlistId).set(playlist).await()

@@ -153,4 +153,6 @@ dependencies {
 
     implementation("androidx.fragment:fragment-ktx:1.8.5")
 
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +36,19 @@ class ProfileFragment : Fragment() {
 
         // FIX: Pass the required 'onItemClick' parameter.
         // For now, it can be an empty lambda if you don't need to handle clicks here.
-        rvProfile.adapter = LibraryAdapter(profileData) { /* TODO: Handle item click here */ }
+        rvProfile.adapter = LibraryAdapter(profileData) {
+
+
+            }
+
+        val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
+        btnEditProfile.setOnClickListener {
+            // Navigate to EditProfileFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, EditProfileFragment())
+                .addToBackStack(null) // Cho phép back về ProfileFragment
+                .commit()
+        }
 
         return view
     }

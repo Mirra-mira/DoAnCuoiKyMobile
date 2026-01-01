@@ -25,6 +25,15 @@ class AuthRepository {
         }
     }
 
+    suspend fun signInWithGoogle(idToken: String): Result<FirebaseUser> {
+        return try {
+            val result = authSource.signInWithGoogle(idToken)
+            Result.success(result.user!!)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun getCurrentUser(): FirebaseUser? {
         return authSource.getCurrentUser()
     }

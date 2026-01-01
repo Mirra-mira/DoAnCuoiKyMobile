@@ -10,36 +10,30 @@ import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
 import com.example.doancuoikymobile.utils.NavigationHelper
 import com.example.doancuoikymobile.viewmodel.SearchViewModel
+import android.content.Context
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SearchFragment : Fragment() {
-    private val viewModel: SearchViewModel by viewModels()
+    private val viewModel: SearchViewModel by viewModels {
+        SearchViewModelFactory(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate XML layout
         val view = inflater.inflate(R.layout.fragment_search, container, false)
-
-        // Tìm ComposeView từ XML
         val composeView = view.findViewById<ComposeView>(R.id.composeView)
 
-        // Setup Compose
         composeView.apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
@@ -49,8 +43,8 @@ class SearchFragment : Fragment() {
                 DoAnCuoiKyMobileTheme(dynamicColor = false) {
                     SearchScreen(
                         viewModel = viewModel,
-                        onSongClick = { songTitle ->
-                            NavigationHelper.openPlayer(this@SearchFragment, songTitle)
+                        onSongClick = { song ->
+                            NavigationHelper.openPlayer(this@SearchFragment, song)
                         },
                         onPlaylistClick = { title, subtitle ->
                             NavigationHelper.openPlaylist(this@SearchFragment, title, subtitle)
@@ -60,6 +54,16 @@ class SearchFragment : Fragment() {
             }
             return view
         }
+    }
+}
+
+class SearchViewModelFactory(private val context: Context) : androidx.lifecycle.ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SearchViewModel(context = context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

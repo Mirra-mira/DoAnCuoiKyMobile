@@ -35,6 +35,13 @@ interface DeezerApiService {
         @Path("id") id: Long
     ): DeezerTrackResponse
 
+    @GET("search/artist")
+    suspend fun searchArtists(
+        @Query("q") q: String,
+        @Query("limit") limit: Int = 30
+    ): DeezerArtistSearchResponse
+
+
     /**
      * Get artist details by ID
      * @param id Artist ID
@@ -95,6 +102,12 @@ data class DeezerArtist(
     val picture_big: String? = null,
     val nb_album: Int = 0,
     val nb_fan: Int = 0
+)
+
+data class DeezerArtistSearchResponse(
+    val data: List<DeezerArtist> = emptyList(),
+    val total: Int = 0,
+    val next: String? = null
 )
 
 /**

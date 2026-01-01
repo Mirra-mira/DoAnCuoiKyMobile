@@ -29,7 +29,7 @@ class PlaylistRepository(
     suspend fun getPlaylistOnce(id: String): Playlist? = playlistRemote.getPlaylistOnce(id)
 
     /**
-     * Stream all playlists for a user.
+     * Stream all playlists for a user (real-time, ordered by createdAt descending).
      */
     fun watchUserPlaylists(userId: String): Flow<List<Playlist>> =
         playlistRemote.watchUserPlaylists(userId)

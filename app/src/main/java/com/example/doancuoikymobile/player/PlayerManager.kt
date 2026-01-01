@@ -8,15 +8,15 @@ import com.example.doancuoikymobile.model.Song
 object PlayerManager {
     private var exoPlayer: ExoPlayer? = null
     private var currentSong: Song? = null
+    private var context: Context? = null
 
-    // Quản lý danh sách phát
     private val playlist = mutableListOf<Song>()
     private var currentIndex = -1
 
     fun init(context: Context) {
         if (exoPlayer == null) {
+            this.context = context
             exoPlayer = ExoPlayer.Builder(context).build().apply {
-                // Tự động chuyển bài khi kết thúc
                 playWhenReady = true
             }
         }
@@ -24,17 +24,17 @@ object PlayerManager {
 
     fun getPlayer(): ExoPlayer = exoPlayer ?: throw IllegalStateException("Player not initialized")
 
-    /**
-     * Quyết định nguồn phát nhạc: Ưu tiên audioUrl, nếu rỗng dùng previewUrl
-     */
     fun playSong(song: Song) {
+        if (exoPlayer == null && context != null) {
+            init(context!!)
+        }
+        
         currentSong = song
 
-        // LOGIC QUAN TRỌNG: Kiểm tra nguồn nhạc từ Deezer hay Firebase
-        val urlToPlay = if (song.audioUrl.isNotEmpty()) {
-            song.audioUrl
-        } else {
-            song.previewUrl ?: ""
+        val urlToPlay = when {
+            song.audioUrl.isNotEmpty() -> song.audioUrl
+            !song.previewUrl.isNullOrEmpty() -> song.previewUrl
+            else -> ""
         }
 
         if (urlToPlay.isEmpty()) return
@@ -47,7 +47,6 @@ object PlayerManager {
         }
     }
 
-    // --- Điều khiển bổ sung ---
     fun play() = exoPlayer?.play()
     fun pause() = exoPlayer?.pause()
     fun stop() = exoPlayer?.stop()

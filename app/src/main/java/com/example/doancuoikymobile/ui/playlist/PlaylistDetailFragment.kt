@@ -7,28 +7,37 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.adapter.LibraryAdapter
 import com.example.doancuoikymobile.adapter.LibraryModel
+import com.example.doancuoikymobile.player.PlayerManager
 import com.example.doancuoikymobile.ui.activity.MainActivity
-import java.util.* // Dùng cho dữ liệu giả lập
-import com.example.doancuoikymobile.ui.player.PlayerFragment // Add this line
+import com.example.doancuoikymobile.ui.player.PlayerFragment
+import com.example.doancuoikymobile.viewmodel.PlaylistDetailViewModel
+import kotlinx.coroutines.launch
+
+private const val ARG_ID = "playlist_id"
 private const val ARG_TITLE = "playlist_title"
-private const val ARG_SUBTITLE = "playlist_subtitle"
 
 class PlaylistDetailFragment : Fragment() {
 
+    private var playlistId: String? = null
     private var playlistTitle: String? = null
-    private var playlistSubtitle: String? = null
+    private val viewModel: PlaylistDetailViewModel by viewModels()
+    private var displayList = ArrayList<LibraryModel>()
+    private lateinit var libraryAdapter: LibraryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Lấy dữ liệu được truyền từ LibraryFragment
         arguments?.let {
+            playlistId = it.getString(ARG_ID)
             playlistTitle = it.getString(ARG_TITLE)
-            playlistSubtitle = it.getString(ARG_SUBTITLE)
         }
     }
 
@@ -38,69 +47,56 @@ class PlaylistDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_playlist_detail, container, false)
 
-        // 1. Xử lý nút Back
         view.findViewById<ImageView>(R.id.btnDetailBack).setOnClickListener {
             parentFragmentManager.popBackStack()
         }
+        view.findViewById<TextView>(R.id.tvPlaylistTitle).text = playlistTitle ?: "Danh sách phát"
 
-        // 2. Cập nhật tiêu đề dựa trên dữ liệu nhận được
-        view.findViewById<TextView>(R.id.tvPlaylistTitle).text = playlistTitle ?: "N/A"
-        view.findViewById<TextView>(R.id.tvPlaylistSubtitle).text = playlistSubtitle ?: "N/A"
-
-        // 3. Setup Danh sách Bài hát (RecyclerView)
         val rvSongList = view.findViewById<RecyclerView>(R.id.rvSongList)
 
-        // Tạo dữ liệu giả cho danh sách bài hát trong Playlist này
-        val songData = createDummySongData()
+        val songListHandler: (LibraryModel) -> Unit = { model ->
+            val songToPlay = viewModel.songs.value.find { it.songId == model.id }
+            songToPlay?.let { song ->
+                PlayerManager.playSong(song)
+                (requireActivity() as? MainActivity)?.showMiniPlayer(song.title, song.mainArtistId)
 
-
-
-
-
-        // TÁI SỬ DỤNG Adapter cũ, nhưng click handler lúc này có thể là rỗng (hoặc logic Play nhạc)
-        val songListHandler: (LibraryModel) -> Unit = { song ->
-
-            // 1. CHUYỂN SANG MÀN HÌNH PLAYER CHÍNH
-            val playerFragment = PlayerFragment.newInstance(song.title)
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, playerFragment)
-                .addToBackStack("PlaylistDetail")
-                .commit()
-
-            // 2. HIỂN THỊ MINI PLAYER BAR TRÊN ACTIVITY
-            val activity = requireActivity() as? MainActivity // Giả sử bạn có MainActivity
-            activity?.showMiniPlayer(song.title, song.subtitle) // Gọi hàm trong Activity để hiện Mini Player
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.frameLayout, PlayerFragment.newInstance(song))
+                    .addToBackStack("PlaylistDetail")
+                    .commit()
+            }
         }
 
+        libraryAdapter = LibraryAdapter(displayList, songListHandler)
         rvSongList.layoutManager = LinearLayoutManager(context)
-        // Dùng LibraryAdapter và truyền danh sách bài hát (songData)
-        rvSongList.adapter = LibraryAdapter(songData, songListHandler)
+        rvSongList.adapter = libraryAdapter
+
+        playlistId?.let { viewModel.loadPlaylistSongs(it) }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.songs.collect { songList ->
+                    val models = songList.map {
+                        // Map title và dùng mainArtistId làm subtitle cho LibraryModel
+                        LibraryModel(it.songId, it.title, it.mainArtistId ?: "")
+                    }
+                    displayList.clear()
+                    displayList.addAll(models)
+                    libraryAdapter.notifyDataSetChanged()
+                }
+            }
+        }
 
         return view
     }
 
-    // Tạo dữ liệu bài hát giả
-    private fun createDummySongData(): List<LibraryModel> {
-        val random = Random()
-        return listOf(
-            LibraryModel("Bài 1 - ${playlistTitle}", "Ca sĩ A"),
-            LibraryModel("Bài 2 - ${playlistTitle}", "Ca sĩ B"),
-            LibraryModel("Bài 3 - ${playlistTitle}", "Ca sĩ C"),
-            LibraryModel("Bài 4 - ${playlistTitle}", "Ca sĩ D"),
-            LibraryModel("Bài 5 - ${playlistTitle}", "Ca sĩ E"),
-            LibraryModel("Bài 6 - ${playlistTitle}", "Ca sĩ F"),
-            LibraryModel("Bài 7 - ${playlistTitle}", "Ca sĩ G")
-        )
-    }
-
     companion object {
         @JvmStatic
-        fun newInstance(title: String, subtitle: String) =
+        fun newInstance(id: String, title: String) =
             PlaylistDetailFragment().apply {
                 arguments = Bundle().apply {
+                    putString(ARG_ID, id)
                     putString(ARG_TITLE, title)
-                    putString(ARG_SUBTITLE, subtitle)
                 }
             }
     }

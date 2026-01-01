@@ -2,12 +2,13 @@ package com.example.doancuoikymobile.utils
 
 import androidx.fragment.app.Fragment
 import com.example.doancuoikymobile.R
+import com.example.doancuoikymobile.model.Song
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.ui.playlist.PlaylistDetailFragment
 
 object NavigationHelper {
-    fun openPlayer(fromFragment: Fragment, songTitle: String) {
-        val playerFragment = PlayerFragment.newInstance(songTitle)
+    fun openPlayer(fromFragment: Fragment, song: Song) {
+        val playerFragment = PlayerFragment.newInstance(song)
 
         val activity = fromFragment.requireActivity()
         activity.supportFragmentManager

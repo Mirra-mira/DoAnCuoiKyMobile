@@ -7,8 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.doancuoikymobile.R
 
-
 data class LibraryModel(
+    val id: String = "",
     val title: String,
     val subtitle: String
 )
@@ -19,7 +19,6 @@ class LibraryAdapter(
 ) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // Correctly reference views from your item layout
         val tvTitle: TextView = view.findViewById(R.id.tvItemTitle)
         val tvSubtitle: TextView = view.findViewById(R.id.tvItemSubtitle)
     }
@@ -35,9 +34,8 @@ class LibraryAdapter(
         holder.tvTitle.text = item.title
         holder.tvSubtitle.text = item.subtitle
 
-        // DÒNG CODE MỚI: Gán sự kiện click vào toàn bộ item view
         holder.itemView.setOnClickListener {
-            onItemClick(item) // Gọi hàm callback và truyền đối tượng item đã được click
+            onItemClick(item)
         }
     }
 

@@ -13,6 +13,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +29,14 @@ fun SearchBar(
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = modifier,
+        modifier = modifier.onKeyEvent { keyEvent ->
+            if (keyEvent.key == Key.Enter) {
+                onSearch(query)
+                true
+            } else {
+                false
+            }
+        },
         placeholder = { Text("Finding something...") },
         leadingIcon = {
             Icon(Icons.Default.Search, "Search")

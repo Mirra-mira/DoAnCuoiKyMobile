@@ -9,12 +9,15 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.doancuoikymobile.ui.auth.AuthActivity // Import AuthActivity mới
+import com.example.doancuoikymobile.repository.AuthRepository
+import com.example.doancuoikymobile.ui.auth.AuthActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity: ComponentActivity() {
+    private val authRepository = AuthRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
             val splashScreen = installSplashScreen()
@@ -24,20 +27,25 @@ class SplashActivity: ComponentActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                delay(3000)
+                delay(2000) // Delay ngắn để hiển thị splash screen
 
-                // Giả định kiểm tra trạng thái đăng nhập (Bạn có thể thay đổi logic này sau)
-                val isLoggedIn = false // Mặc định là chưa đăng nhập
+                // Kiểm tra trạng thái đăng nhập từ Firebase/AuthRepository
+                val currentUser = authRepository.getCurrentUser()
+                val isLoggedIn = currentUser != null
 
                 val targetActivity = if (isLoggedIn) {
                     MainActivity::class.java
                 } else {
-                    AuthActivity::class.java // Chuyển sang màn hình Đăng nhập/Đăng ký
+                    AuthActivity::class.java
                 }
 
-                val intent = Intent(this@SplashActivity, targetActivity)
+                // Tạo Intent với flags để ngăn back navigation
+                val intent = Intent(this@SplashActivity, targetActivity).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                
                 startActivity(intent)
-                finish()
+                finish() // Đóng SplashActivity để không thể back về
             }
         }
     }

@@ -21,7 +21,9 @@ class AuthActivity : AppCompatActivity() {
 
     // Hàm chuyển sang màn hình chính (MainActivity)
     fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         finish() // Đóng AuthActivity để user không back lại được màn login
     }

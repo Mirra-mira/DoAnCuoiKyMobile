@@ -46,8 +46,11 @@ class SearchFragment : Fragment() {
                         onSongClick = { song ->
                             NavigationHelper.openPlayer(this@SearchFragment, song)
                         },
-                        onPlaylistClick = { title, subtitle ->
-                            NavigationHelper.openPlaylist(this@SearchFragment, title, subtitle)
+                        onArtistClick = { artist ->
+                            NavigationHelper.openArtist(this@SearchFragment, artist.artistId)
+                        },
+                        onPlaylistClick = { playlistId, title ->
+                            NavigationHelper.openPlaylist(this@SearchFragment, playlistId, title)
                         }
                     )
                 }

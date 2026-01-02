@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.dp
 import com.example.doancuoikymobile.ui.search.SearchResultItem
 
 @Composable
-fun ArtistItem(artist: SearchResultItem.Artist) {
+fun ArtistItem(artist: SearchResultItem.Artist, onClick: () -> Unit = {}) {
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable { /* TODO */ }
+            .clickable { onClick() }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

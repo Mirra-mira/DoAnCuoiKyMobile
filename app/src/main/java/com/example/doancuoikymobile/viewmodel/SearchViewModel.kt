@@ -11,12 +11,12 @@ import com.example.doancuoikymobile.player.getDurationFormatted
 import com.example.doancuoikymobile.repository.Resource
 import com.example.doancuoikymobile.repository.Status
 import com.example.doancuoikymobile.repository.SongRepository
-import com.example.doancuoikymobile.repository.ArtistRepository
 import com.example.doancuoikymobile.repository.PlaylistRepository
 import com.example.doancuoikymobile.repository.AuthRepository
-import com.example.doancuoikymobile.data.remote.firebase.ArtistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.PlaylistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.PlaylistSongDataSource
+import com.example.doancuoikymobile.data.remote.api.DeezerArtistDataSource
+import com.example.doancuoikymobile.data.remote.api.DeezerPlaylistDataSource
 import com.example.doancuoikymobile.ui.search.SearchResultItem
 import com.example.doancuoikymobile.ui.search.SearchFilter
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,7 +28,8 @@ import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val songRepository: SongRepository = SongRepository(),
-    private val artistRepository: ArtistRepository = ArtistRepository(ArtistRemoteDataSource()),
+    private val deezerArtistDataSource: DeezerArtistDataSource = DeezerArtistDataSource(),
+    private val deezerPlaylistDataSource: DeezerPlaylistDataSource = DeezerPlaylistDataSource(),
     private val playlistRepository: PlaylistRepository = PlaylistRepository(
         PlaylistRemoteDataSource(FirebaseFirestore.getInstance()),
         PlaylistSongDataSource(FirebaseFirestore.getInstance())
@@ -123,7 +124,7 @@ class SearchViewModel(
         _searchArtists.value = Resource.loading(null)
         viewModelScope.launch {
             try {
-                artistRepository.searchArtists(query).collect { artists ->
+                deezerArtistDataSource.searchArtists(query).collect { artists ->
                     _searchArtists.value = Resource.success(artists)
                 }
             } catch (e: Exception) {
@@ -136,16 +137,8 @@ class SearchViewModel(
         _searchPlaylists.value = Resource.loading(null)
         viewModelScope.launch {
             try {
-                val currentUser = authRepository.getCurrentUser()
-                if (currentUser != null) {
-                    playlistRepository.watchUserPlaylists(currentUser.uid).collect { playlists ->
-                        val filtered = playlists.filter { 
-                            it.name.contains(query, ignoreCase = true)
-                        }
-                        _searchPlaylists.value = Resource.success(filtered)
-                    }
-                } else {
-                    _searchPlaylists.value = Resource.success(emptyList())
+                deezerPlaylistDataSource.searchPlaylists(query).collect { playlists ->
+                    _searchPlaylists.value = Resource.success(playlists)
                 }
             } catch (e: Exception) {
                 _searchPlaylists.value = Resource.error(e.message ?: "Error", null)

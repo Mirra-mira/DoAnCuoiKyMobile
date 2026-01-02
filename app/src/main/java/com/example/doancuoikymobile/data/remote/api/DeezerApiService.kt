@@ -41,6 +41,16 @@ interface DeezerApiService {
         @Query("limit") limit: Int = 30
     ): DeezerArtistSearchResponse
 
+    /**
+     * Search playlists by query
+     * @param q Search keyword
+     * @param limit Number of results (default: 30)
+     */
+    @GET("search/playlist")
+    suspend fun searchPlaylists(
+        @Query("q") q: String,
+        @Query("limit") limit: Int = 30
+    ): DeezerPlaylistSearchResponse
 
     /**
      * Get artist details by ID
@@ -50,6 +60,37 @@ interface DeezerApiService {
     suspend fun getArtist(
         @Path("id") id: Long
     ): DeezerArtistResponse
+
+    /**
+     * Get top tracks of an artist
+     * @param id Artist ID
+     * @param limit Number of results (default: 50)
+     */
+    @GET("artist/{id}/top")
+    suspend fun getArtistTopTracks(
+        @Path("id") id: Long,
+        @Query("limit") limit: Int = 50
+    ): DeezerSearchResponse
+
+    /**
+     * Get playlist details by ID
+     * @param id Playlist ID
+     */
+    @GET("playlist/{id}")
+    suspend fun getPlaylist(
+        @Path("id") id: Long
+    ): DeezerPlaylistResponse
+
+    /**
+     * Get tracks of a playlist
+     * @param id Playlist ID
+     * @param limit Number of results (default: 100)
+     */
+    @GET("playlist/{id}/tracks")
+    suspend fun getPlaylistTracks(
+        @Path("id") id: Long,
+        @Query("limit") limit: Int = 100
+    ): DeezerSearchResponse
 }
 
 // ==================== RESPONSE DTOs ====================
@@ -131,4 +172,47 @@ data class DeezerAlbum(
     val cover: String? = null, // Album cover URL
     val cover_big: String? = null,
     val release_date: String? = null
+)
+
+/**
+ * Playlist object from Deezer API
+ */
+data class DeezerPlaylist(
+    val id: Long = 0,
+    val title: String = "",
+    val description: String? = null,
+    val picture: String? = null, // Playlist picture URL
+    val picture_big: String? = null,
+    val nb_tracks: Int = 0,
+    val creator: DeezerUser? = null
+)
+
+/**
+ * User object from Deezer API (playlist creator)
+ */
+data class DeezerUser(
+    val id: Long = 0,
+    val name: String = ""
+)
+
+/**
+ * Response for search/playlist endpoint
+ */
+data class DeezerPlaylistSearchResponse(
+    val data: List<DeezerPlaylist> = emptyList(),
+    val total: Int = 0,
+    val next: String? = null
+)
+
+/**
+ * Single playlist response (when fetching by ID)
+ */
+data class DeezerPlaylistResponse(
+    val id: Long = 0,
+    val title: String = "",
+    val description: String? = null,
+    val picture: String? = null,
+    val picture_big: String? = null,
+    val nb_tracks: Int = 0,
+    val creator: DeezerUser? = null
 )

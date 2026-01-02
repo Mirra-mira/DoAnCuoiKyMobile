@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp">
+
+    <!-- Artist Avatar -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardArtistAvatar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:cardCornerRadius="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivArtistImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_music_note" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Artist Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/cardArtistAvatar"
+        app:layout_constraintEnd_toStartOf="@id/btnAddArtist"
+        app:layout_constraintStart_toEndOf="@id/cardArtistAvatar"
+        app:layout_constraintTop_toTopOf="@id/cardArtistAvatar">
+
+        <TextView
+            android:id="@+id/tvArtistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Artist Name"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvFollowersCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="1.2M followers"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Follow Button -->
+    <ImageButton
+        android:id="@+id/btnFollowArtist"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Follow artist"
+        android:padding="8dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_heart_outline"
+        app:layout_constraintBottom_toBottomOf="@id/cardArtistAvatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cardArtistAvatar" />
+
+    <!-- Add/Follow Button -->
+    <ImageButton
+        android:id="@+id/btnAddArtist"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/add"
+        android:padding="8dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="@id/cardArtistAvatar"
+        app:layout_constraintEnd_toStartOf="@id/btnFollowArtist"
+        app:layout_constraintTop_toTopOf="@id/cardArtistAvatar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

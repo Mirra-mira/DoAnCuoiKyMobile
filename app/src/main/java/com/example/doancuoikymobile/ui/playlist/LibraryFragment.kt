@@ -85,16 +85,28 @@ class LibraryFragment : Fragment() {
                 .commit()
         }
 
+        // Setup Like/Follow handler
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val likeClickHandler: (LibraryModel) -> Unit = { item ->
+            if (currentUser != null) {
+                when (currentTab) {
+                    TabMode.SONGS -> viewModel.toggleLikeSong(currentUser.uid, item.id)
+                    TabMode.ARTISTS -> viewModel.toggleFollowArtist(currentUser.uid, item.id)
+                    else -> {}
+                }
+            }
+        }
+
         // 2. Init Adapter
         libraryAdapter = LibraryAdapter(
             displayList,
             onItemClick = itemClickHandler,
-            onAddClick = { /* TODO: handle add button click */ }
+            onAddClick = { /* TODO: handle add button click */ },
+            onLikeClick = likeClickHandler
         )
         rvLibrary.layoutManager = LinearLayoutManager(context)
         rvLibrary.adapter = libraryAdapter
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             viewModel.loadLibraryData(currentUser.uid)
             observeData()
@@ -110,6 +122,11 @@ class LibraryFragment : Fragment() {
                 updateFilterUI()
                 sortMode = SortMode.RECENTLY_PLAYED
                 tvSortLabel.text = "Recently played"
+                // Trigger data load immediately
+                viewModel.playlists.value.let { playlists ->
+                    val models = playlists.map { LibraryModel(it.playlistId, it.name, "Playlist") }
+                    loadData(models)
+                }
             }
 
             btnArtists.setOnClickListener {
@@ -117,6 +134,11 @@ class LibraryFragment : Fragment() {
                 updateFilterUI()
                 sortMode = SortMode.RECENTLY_PLAYED
                 tvSortLabel.text = "Recently played"
+                // Trigger data load immediately
+                viewModel.artists.value.let { artists ->
+                    val models = artists.map { LibraryModel(it.artistId, it.name, "Artist") }
+                    loadData(models)
+                }
             }
 
             btnSongs.setOnClickListener {
@@ -124,6 +146,22 @@ class LibraryFragment : Fragment() {
                 updateFilterUI()
                 sortMode = SortMode.RECENTLY_PLAYED
                 tvSortLabel.text = "Recently played"
+                // Trigger data load immediately
+                viewModel.recentlyPlayed.value.let { songs ->
+                    val models = songs.map { recent ->
+                        LibraryModel(recent.songId, recent.songId, "Recently Played")
+                    }
+                    loadData(models)
+                    // Also prepare liked songs for non-recent mode
+                    if (sortMode == SortMode.RECENTLY_PLAYED) {
+                        viewModel.likedSongs.value.let { liked ->
+                            val likedModels = liked.map { song ->
+                                LibraryModel(song.songId, song.title, song.artistName ?: "Unknown Artist")
+                            }
+                            loadData(likedModels)
+                        }
+                    }
+                }
             }
 
             btnSort.setOnClickListener { sortList() }
@@ -155,7 +193,7 @@ class LibraryFragment : Fragment() {
 
             // Songs (hiển thị tất cả bài hát khi ở tab Songs & không phải recently)
             launch {
-                viewModel.allSongs.collect { list ->
+                viewModel.likedSongs.collect { list ->
                     if (currentTab == TabMode.SONGS && sortMode != SortMode.RECENTLY_PLAYED) {
                         val models = list.map { song ->
                             LibraryModel(
@@ -169,12 +207,10 @@ class LibraryFragment : Fragment() {
                 }
             }
 
-            // Playlist (chỉ khi đang ở tab Playlist & không phải recently)
+            // Playlist (hiển thị khi đang ở tab Playlist)
             launch {
                 viewModel.playlists.collect { list ->
-                    if (currentTab == TabMode.PLAYLISTS
-                        && sortMode != SortMode.RECENTLY_PLAYED
-                    ) {
+                    if (currentTab == TabMode.PLAYLISTS) {
                         val models = list.map {
                             LibraryModel(it.playlistId, it.name, "Playlist")
                         }
@@ -183,12 +219,10 @@ class LibraryFragment : Fragment() {
                 }
             }
 
-            // Artist (chỉ khi đang ở tab Artist & không phải recently)
+            // Artist (hiển thị khi đang ở tab Artist)
             launch {
                 viewModel.artists.collect { list ->
-                    if (currentTab == TabMode.ARTISTS
-                        && sortMode != SortMode.RECENTLY_PLAYED
-                    ) {
+                    if (currentTab == TabMode.ARTISTS) {
                         val models = list.map {
                             LibraryModel(it.artistId, it.name, "Artist")
                         }

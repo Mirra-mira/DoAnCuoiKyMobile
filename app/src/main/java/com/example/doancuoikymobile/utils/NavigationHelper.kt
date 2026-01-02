@@ -5,6 +5,7 @@ import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.model.Song
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.ui.playlist.PlaylistDetailFragment
+import com.example.doancuoikymobile.ui.artist.ArtistDetailFragment
 
 object NavigationHelper {
 
@@ -38,6 +39,20 @@ object NavigationHelper {
             .beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .addToBackStack("playlist_detail")
+            .commit()
+    }
+
+    fun openArtist(
+        fromFragment: Fragment,
+        artistId: String
+    ) {
+        val fragment = ArtistDetailFragment.newInstance(artistId)
+
+        fromFragment.requireActivity()
+            .supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.frameLayout, fragment)
+            .addToBackStack("artist_detail")
             .commit()
     }
 }

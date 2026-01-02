@@ -12,5 +12,6 @@ data class Artist(
     val artistId: String = "",
     val name: String = "",
     val pictureUrl: String? = null,
+    val followers: Int = 0, // Thêm trường số lượng người theo dõi
     val searchKeywords: List<String> = emptyList() // For Firestore search
 ) : Serializable

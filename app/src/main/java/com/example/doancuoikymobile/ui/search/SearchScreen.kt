@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import com.example.doancuoikymobile.model.Song
+import com.example.doancuoikymobile.model.Artist
 import com.example.doancuoikymobile.repository.Status
 import com.example.doancuoikymobile.viewmodel.SearchViewModel
 
@@ -60,7 +61,8 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel,
     onSongClick: (Song) -> Unit = {},
-    onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> }) {
+    onArtistClick: (Artist) -> Unit = {},
+    onPlaylistClick: (playlistId: String, title: String) -> Unit = { _, _ -> }) {
     // State from ViewModel
     val searchSongs by viewModel.searchSongs.collectAsState()
     val searchArtists by viewModel.searchArtists.collectAsState()
@@ -211,6 +213,9 @@ fun SearchScreen(
                     playlists = searchPlaylists.data ?: emptyList(),
                     onSongClick = { song ->
                         onSongClick(song)
+                    },
+                    onArtistClick = { artist ->
+                        onArtistClick(artist)
                     },
                     onPlaylistClick = onPlaylistClick
                 )

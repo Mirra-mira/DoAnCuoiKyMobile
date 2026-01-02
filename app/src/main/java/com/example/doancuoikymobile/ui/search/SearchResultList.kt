@@ -20,8 +20,9 @@ fun SearchResultsList(
     songs: List<Song> = emptyList(),
     artists: List<Artist> = emptyList(),
     playlists: List<Playlist> = emptyList(),
-    onPlaylistClick: (title: String, subtitle: String) -> Unit,
-    onSongClick: (Song) -> Unit
+    onPlaylistClick: (playlistId: String, title: String) -> Unit,
+    onSongClick: (Song) -> Unit,
+    onArtistClick: (Artist) -> Unit = {}
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -36,12 +37,33 @@ fun SearchResultsList(
                         SongItem(result, onClick = { onSongClick(song) })
                     }
                 }
-                is SearchResultItem.Artist -> ArtistItem(result)
+                is SearchResultItem.Artist -> {
+                    // Find the full artist object from the artists list
+                    val artist = artists.find { it.artistId == result.id }
+                    if (artist != null) {
+                        ArtistItem(result, onClick = { onArtistClick(artist) })
+                    } else {
+                        ArtistItem(result)
+                    }
+                }
                 is SearchResultItem.Playlist -> {
-                    PlaylistItem(
-                        playlist = result,
-                        onClick = { title: String, subtitle: String -> onPlaylistClick(title, subtitle) }
-                    )
+                    // Find the full playlist object from the playlists list
+                    val playlist = playlists.find { it.playlistId == result.id }
+                    if (playlist != null) {
+                        PlaylistItem(
+                            playlist = result,
+                            onClick = { title: String, subtitle: String -> 
+                                onPlaylistClick(playlist.playlistId, playlist.name) 
+                            }
+                        )
+                    } else {
+                        PlaylistItem(
+                            playlist = result,
+                            onClick = { title: String, subtitle: String -> 
+                                onPlaylistClick(result.id, result.title) 
+                            }
+                        )
+                    }
                 }
             }
         }

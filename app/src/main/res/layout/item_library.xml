@@ -49,6 +49,16 @@
             android:textSize="14sp"/>
     </LinearLayout>
 
+    <!-- Heart icon for like/favorite status -->
+    <ImageView
+        android:id="@+id/btnLikeSong"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_heart_outline"
+        android:contentDescription="Like song"
+        android:padding="6dp"
+        android:layout_marginEnd="8dp"/>
+
     <!-- Nút + để thêm playlist -->
     <ImageView
         android:id="@+id/btnAddToPlaylist"

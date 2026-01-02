@@ -51,22 +51,32 @@ class ArtistRemoteDataSource(
     }
 
     /**
-     * Search artists by name using searchKeywords array.
-     * Firestore query: whereArrayContains("searchKeywords", query.lowercase())
+     * Search artists by name.
+     * Retrieves all artists and filters by name (case-insensitive).
      */
     fun searchArtists(query: String): Flow<List<Artist>> = callbackFlow {
-        val registration = artistsColl
-            .whereArrayContains("searchKeywords", query.lowercase())
-            .addSnapshotListener { snap, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val list = snap?.documents?.mapNotNull {
-                    it.toObject(Artist::class.java)?.copy(artistId = it.id)
-                } ?: emptyList()
-                trySend(list).isSuccess
+        if (query.isBlank()) {
+            trySend(emptyList()).isSuccess
+            return@callbackFlow
+        }
+
+        val lowerQuery = query.lowercase()
+        
+        val registration = artistsColl.addSnapshotListener { snap, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
             }
+            
+            val list = snap?.documents?.mapNotNull {
+                it.toObject(Artist::class.java)?.copy(artistId = it.id)
+            }?.filter { artist ->
+                artist.name.lowercase().contains(lowerQuery)
+            } ?: emptyList()
+            
+            trySend(list).isSuccess
+        }
+        
         awaitClose { registration.remove() }
     }
 

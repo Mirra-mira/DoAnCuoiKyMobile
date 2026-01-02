@@ -20,6 +20,8 @@ import com.example.doancuoikymobile.player.PlayerManager
 import com.example.doancuoikymobile.ui.activity.MainActivity
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.PlaylistDetailViewModel
+import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
+import com.example.doancuoikymobile.utils.EmptyStateHelper
 import kotlinx.coroutines.launch
 
 private const val ARG_ID = "playlist_id"
@@ -32,6 +34,7 @@ class PlaylistDetailFragment : Fragment() {
     private val viewModel: PlaylistDetailViewModel by viewModels()
     private var displayList = ArrayList<LibraryModel>()
     private lateinit var libraryAdapter: LibraryAdapter
+    private lateinit var emptyStateView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,21 +56,43 @@ class PlaylistDetailFragment : Fragment() {
         view.findViewById<TextView>(R.id.tvPlaylistTitle).text = playlistTitle ?: "Danh sách phát"
 
         val rvSongList = view.findViewById<RecyclerView>(R.id.rvSongList)
+        emptyStateView = view.findViewById(R.id.emptyStatePlaylist)
 
         val songListHandler: (LibraryModel) -> Unit = { model ->
             val songToPlay = viewModel.songs.value.find { it.songId == model.id }
             songToPlay?.let { song ->
                 PlayerManager.playSong(song)
-                (requireActivity() as? MainActivity)?.showMiniPlayer(song.title, song.mainArtistId)
+                val songList = viewModel.songs.value
+                val startIndex = songList.indexOfFirst { it.songId == song.songId }
 
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.frameLayout, PlayerFragment.newInstance(song))
+                    .replace(
+                        R.id.frameLayout,
+                        PlayerFragment.newInstance(
+                            song = song,
+                            playlist = songList,
+                            startIndex = startIndex
+                        )
+                    )
                     .addToBackStack("PlaylistDetail")
                     .commit()
             }
         }
 
-        libraryAdapter = LibraryAdapter(displayList, songListHandler)
+        libraryAdapter = LibraryAdapter(
+            displayList,
+            onItemClick = songListHandler,
+            onAddClick = { model ->
+                val song = viewModel.songs.value.find { it.songId == model.id } ?: return@LibraryAdapter
+
+                lifecycleScope.launch {
+                    val playlists = viewModel.getUserPlaylists() // hàm này bạn có thể lấy từ repo
+                    ChoosePlaylistDialog(requireContext(), playlists) { playlist ->
+                        viewModel.addSongToPlaylist(playlist.playlistId, song.songId)
+                    }.show()
+                }
+            }
+        )
         rvSongList.layoutManager = LinearLayoutManager(context)
         rvSongList.adapter = libraryAdapter
 
@@ -83,6 +108,17 @@ class PlaylistDetailFragment : Fragment() {
                     displayList.clear()
                     displayList.addAll(models)
                     libraryAdapter.notifyDataSetChanged()
+                    
+                    // Handle empty state
+                    EmptyStateHelper.handleEmptyState(emptyStateView, rvSongList, songList.isEmpty())
+                    if (songList.isEmpty()) {
+                        EmptyStateHelper.updateEmptyState(
+                            emptyStateView,
+                            iconResId = R.drawable.ic_music_note,
+                            title = "No Songs",
+                            message = "Add songs to this playlist to get started"
+                        )
+                    }
                 }
             }
         }

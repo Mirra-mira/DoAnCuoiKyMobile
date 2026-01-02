@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.example.doancuoikymobile.model.Playlist
 
 class PlaylistDetailViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -46,5 +47,22 @@ class PlaylistDetailViewModel : ViewModel() {
                 _songs.value = detailedSongs
             }
         }
+    }
+
+    fun addSongToPlaylist(playlistId: String, songId: String) {
+        viewModelScope.launch {
+            val exists = playlistRepo.isSongInPlaylist(playlistId, songId)
+            if (!exists) {
+                playlistRepo.addSongToPlaylist(
+                    playlistId,
+                    songId,
+                    orderIndex = System.currentTimeMillis().toInt()
+                )
+            }
+        }
+    }
+
+    suspend fun getUserPlaylists(): List<Playlist> {
+        return playlistRepo.getUserPlaylists()
     }
 }

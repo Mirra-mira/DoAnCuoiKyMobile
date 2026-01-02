@@ -90,4 +90,14 @@
         app:layout_constraintVertical_bias="1.0"
         tools:listitem="@layout/item_library"/>
 
+    <!-- Empty State for Playlist -->
+    <include
+        android:id="@+id/emptyStatePlaylist"
+        layout="@layout/layout_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnPlayBig" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

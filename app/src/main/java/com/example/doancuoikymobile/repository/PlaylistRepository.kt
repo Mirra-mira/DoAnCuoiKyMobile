@@ -76,5 +76,10 @@ class PlaylistRepository(
      */
     suspend fun isSongInPlaylist(playlistId: String, songId: String): Boolean =
         playlistSongRemote.isSongInPlaylist(playlistId, songId)
+
+    suspend fun getUserPlaylists(): List<Playlist> {
+        val userId = "CURRENT_USER_ID"  // TODO: replace bằng userId thật
+        return playlistRemote.getUserPlaylistsOnce(userId)
+    }
 }
 

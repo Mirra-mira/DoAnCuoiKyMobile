@@ -15,12 +15,14 @@ data class LibraryModel(
 
 class LibraryAdapter(
     private val dataList: List<LibraryModel>,
-    private val onItemClick: (LibraryModel) -> Unit
+    private val onItemClick: (LibraryModel) -> Unit,
+    private val onAddClick: (LibraryModel) -> Unit
 ) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvItemTitle)
         val tvSubtitle: TextView = view.findViewById(R.id.tvItemSubtitle)
+        val btnAdd: View = view.findViewById(R.id.btnAddToPlaylist)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,6 +38,10 @@ class LibraryAdapter(
 
         holder.itemView.setOnClickListener {
             onItemClick(item)
+        }
+
+        holder.btnAdd.setOnClickListener {
+            onAddClick(item)
         }
     }
 

@@ -57,7 +57,12 @@ class PlayerFragment : Fragment() {
         PlayerManager.init(requireContext())
 
         val song = arguments?.getSerializable("song") as? Song
-        if (song != null) {
+        val songs = arguments?.getSerializable("playlist") as? ArrayList<Song>
+        val index = arguments?.getInt("startIndex") ?: 0
+
+        if (!songs.isNullOrEmpty()) {
+            viewModel.setPlaylist(songs, index)
+        } else if (song != null) {
             viewModel.playSong(song)
         }
 
@@ -147,9 +152,15 @@ class PlayerFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(song: Song) = PlayerFragment().apply {
+        fun newInstance(
+            song: Song,
+            playlist: List<Song>,
+            startIndex: Int
+        ) = PlayerFragment().apply {
             arguments = Bundle().apply {
                 putSerializable("song", song)
+                putSerializable("playlist", ArrayList(playlist))
+                putInt("startIndex", startIndex)
             }
         }
     }

@@ -19,7 +19,9 @@ import com.example.doancuoikymobile.ui.profile.ProfileFragment
 import com.example.doancuoikymobile.ui.search.SearchFragment
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import com.example.doancuoikymobile.model.Song
 import kotlinx.coroutines.launch
+import com.bumptech.glide.Glide
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnMiniPlayPause: ImageView // Đổi tên cho khớp logic
 
     private val playerViewModel: PlayerViewModel by viewModels()
+    private var isPlayerScreen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,24 +60,15 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) replaceFragment(HomeFragment())
         setupBottomNav()
     }
-
-    // Hàm này để các Fragment khác gọi khi phát nhạc
-    fun showMiniPlayer(title: String, artistId: String?) {
-        miniPlayerBar.visibility = View.VISIBLE
-        tvMiniTitle.text = title
-        tvMiniSubtitle.text = artistId ?: "Unknown Artist"
-    }
-
     private fun observePlayer() {
         lifecycleScope.launch {
             playerViewModel.currentSong.collect { song ->
-                if (song != null) {
-                    showMiniPlayer(song.title, song.mainArtistId)
-                } else {
-                    miniPlayerBar.visibility = View.GONE
+                if (song != null && !isPlayerScreen) {
+                    showMiniPlayer(song)
                 }
             }
         }
+
         lifecycleScope.launch {
             playerViewModel.isPlaying.collect { isPlaying ->
                 btnMiniPlayPause.setImageResource(
@@ -82,6 +76,21 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    private fun showMiniPlayer(song: Song) {
+        miniPlayerBar.visibility = View.VISIBLE
+        tvMiniTitle.text = song.title
+
+        tvMiniSubtitle.text = song.artistName
+            ?.takeIf { it.isNotBlank() }
+            ?: "Unknown Artist"
+
+        Glide.with(this)
+            .load(song.coverUrl)
+            .placeholder(R.drawable.ic_launcher_background)
+            .error(R.drawable.ic_launcher_background)
+            .into(miniPlayerBar.findViewById(R.id.imgThumbnail))
     }
 
     private fun setupBottomNav() {
@@ -97,6 +106,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun replaceFragment(fragment: Fragment) {
+        isPlayerScreen = fragment is PlayerFragment
+
+        if (isPlayerScreen) {
+            miniPlayerBar.visibility = View.GONE
+        }
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .addToBackStack(null)

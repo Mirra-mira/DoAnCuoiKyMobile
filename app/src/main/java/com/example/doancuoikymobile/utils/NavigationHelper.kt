@@ -7,24 +7,36 @@ import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.ui.playlist.PlaylistDetailFragment
 
 object NavigationHelper {
-    fun openPlayer(fromFragment: Fragment, song: Song) {
-        val playerFragment = PlayerFragment.newInstance(song)
 
-        val activity = fromFragment.requireActivity()
-        activity.supportFragmentManager
+    fun openPlayer(fromFragment: Fragment, song: Song) {
+        val playerFragment = PlayerFragment.newInstance(
+            song = song,
+            playlist = listOf(song), // fallback playlist
+            startIndex = 0
+        )
+
+        fromFragment.requireActivity()
+            .supportFragmentManager
             .beginTransaction()
             .replace(R.id.frameLayout, playerFragment)
             .addToBackStack("player")
             .commit()
     }
 
-    fun openPlaylist(fromFragment: Fragment, playlistTitle: String, playlistSubtitle : String) {
-        val playerFragment = PlaylistDetailFragment.newInstance(playlistTitle, playlistSubtitle)
+    fun openPlaylist(
+        fromFragment: Fragment,
+        playlistId: String,
+        playlistTitle: String
+    ) {
+        val fragment = PlaylistDetailFragment.newInstance(
+            playlistId,
+            playlistTitle
+        )
 
-        val activity = fromFragment.requireActivity()
-        activity.supportFragmentManager
+        fromFragment.requireActivity()
+            .supportFragmentManager
             .beginTransaction()
-            .replace(R.id.frameLayout, playerFragment)
+            .replace(R.id.frameLayout, fragment)
             .addToBackStack("playlist_detail")
             .commit()
     }

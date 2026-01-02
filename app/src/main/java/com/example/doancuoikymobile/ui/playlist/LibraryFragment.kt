@@ -20,12 +20,13 @@ import com.example.doancuoikymobile.adapter.LibraryModel
 import com.example.doancuoikymobile.viewmodel.LibraryViewModel
 import com.example.doancuoikymobile.model.Playlist
 import com.example.doancuoikymobile.model.Song
+import com.example.doancuoikymobile.utils.EmptyStateHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import com.google.android.material.R as MaterialR
 import android.widget.ImageView
 import java.util.UUID
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 
 class LibraryFragment : Fragment() {
 
@@ -37,6 +38,7 @@ class LibraryFragment : Fragment() {
     private lateinit var btnSort: View
     private lateinit var tvSortLabel: TextView
     private lateinit var btnCreatePlaylist: ImageView
+    private lateinit var emptyStateView: View
     private var isAscending = true
     private var sortMode = SortMode.RECENTLY_PLAYED  // Thêm mode sắp xếp
     private var currentTab = TabMode.PLAYLISTS
@@ -72,6 +74,7 @@ class LibraryFragment : Fragment() {
         btnSort = view.findViewById(R.id.btnSort)
         tvSortLabel = view.findViewById(R.id.tvSortLabel)
         btnCreatePlaylist = view.findViewById(R.id.btnCreatePlaylist)  // Nút (+) tạo playlist mới
+        emptyStateView = view.findViewById(R.id.emptyStateLibrary)
 
         // 1. Setup Click Handler: Chuyển đến PlaylistDetailFragment khi click vào playlist
         val itemClickHandler: (LibraryModel) -> Unit = { item ->
@@ -83,7 +86,11 @@ class LibraryFragment : Fragment() {
         }
 
         // 2. Init Adapter
-        libraryAdapter = LibraryAdapter(displayList, itemClickHandler)
+        libraryAdapter = LibraryAdapter(
+            displayList,
+            onItemClick = itemClickHandler,
+            onAddClick = { /* TODO: handle add button click */ }
+        )
         rvLibrary.layoutManager = LinearLayoutManager(context)
         rvLibrary.adapter = libraryAdapter
 
@@ -199,6 +206,17 @@ class LibraryFragment : Fragment() {
         displayList.clear()
         displayList.addAll(newData)
         libraryAdapter.notifyDataSetChanged()
+        
+        // Handle empty state
+        EmptyStateHelper.handleEmptyState(emptyStateView, rvLibrary, newData.isEmpty())
+        if (newData.isEmpty()) {
+            EmptyStateHelper.updateEmptyState(
+                emptyStateView,
+                iconResId = R.drawable.ic_music_note,
+                title = "No Items",
+                message = "Create your first playlist to get started"
+            )
+        }
     }
 
     private fun getThemeColor(attr: Int): Int {
@@ -208,17 +226,17 @@ class LibraryFragment : Fragment() {
     }
 
     private fun updateFilterUI() {
-        // Lấy màu sắc mặc định từ theme để đảm bảo đồng nhất UI
-        val defaultTextColor = getThemeColor(MaterialR.attr.colorOnSurface)
-        
-        // Reset all buttons
+        // Lấy màu mặc định từ colors.xml
+        val defaultTextColor = ContextCompat.getColor(requireContext(), R.color.off_black)
+
+        // Reset tất cả các button
         listOf(btnPlaylists, btnArtists, btnSongs).forEach { btn ->
             btn.setBackgroundResource(R.drawable.bg_rounded_border)
             btn.setTextColor(defaultTextColor)
             btn.tag = "unselected"
         }
-        
-        // Highlight selected button
+
+        // Highlight button đang chọn
         when (currentTab) {
             TabMode.PLAYLISTS -> {
                 btnPlaylists.setBackgroundResource(R.drawable.bg_rounded_filled)

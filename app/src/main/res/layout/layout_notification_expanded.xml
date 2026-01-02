@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Top Bar with Close Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/now_playing"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/notification_expanded_close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/close"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close" />
+    </LinearLayout>
+
+    <!-- Album Art - Large -->
+    <ImageView
+        android:id="@+id/notification_expanded_album_art"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginVertical="16dp"
+        android:contentDescription="@string/album_art"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_music_note" />
+
+    <!-- Song Title -->
+    <TextView
+        android:id="@+id/notification_expanded_song_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="@string/unknown_song"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Artist Name -->
+    <TextView
+        android:id="@+id/notification_expanded_artist_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/unknown_artist"
+        android:textAlignment="center"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+    <!-- Progress Bar -->
+    <SeekBar
+        android:id="@+id/notification_expanded_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp" />
+
+    <!-- Duration Labels -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/notification_expanded_current_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0:00"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/notification_expanded_total_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0:00"
+            android:textAlignment="viewEnd"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Control Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- Previous -->
+        <ImageButton
+            android:id="@+id/notification_expanded_previous"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/previous"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_skip_previous" />
+
+        <!-- Play/Pause -->
+        <ImageButton
+            android:id="@+id/notification_expanded_play_pause"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="16dp"
+            android:background="?attr/colorSecondary"
+            android:contentDescription="@string/play_pause"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_play_arrow" />
+
+        <!-- Next -->
+        <ImageButton
+            android:id="@+id/notification_expanded_next"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/next"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_skip_next" />
+    </LinearLayout>
+
+    <!-- Repeat and Shuffle Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/notification_expanded_shuffle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/shuffle"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_shuffle" />
+
+        <ImageButton
+            android:id="@+id/notification_expanded_repeat"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/repeat"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_repeat" />
+    </LinearLayout>
+</LinearLayout>

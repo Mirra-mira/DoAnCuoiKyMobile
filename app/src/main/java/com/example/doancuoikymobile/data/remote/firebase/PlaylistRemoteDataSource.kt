@@ -49,4 +49,14 @@ class PlaylistRemoteDataSource(
     suspend fun deletePlaylist(id: String) {
         coll.document(id).delete().await()
     }
+
+    suspend fun getUserPlaylistsOnce(userId: String): List<Playlist> {
+        val snapshot = coll.whereEqualTo("userId", userId)
+            .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull {
+            it.toObject(Playlist::class.java)?.copy(playlistId = it.id)
+        }
+    }
 }

@@ -124,4 +124,14 @@
         android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSort" />
+
+    <!-- Empty State -->
+    <include
+        android:id="@+id/emptyStateLibrary"
+        layout="@layout/layout_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSort" />
 </androidx.constraintlayout.widget.ConstraintLayout>

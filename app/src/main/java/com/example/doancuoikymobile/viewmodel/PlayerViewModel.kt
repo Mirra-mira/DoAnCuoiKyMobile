@@ -60,6 +60,19 @@ class PlayerViewModel(
                 _isPlaying.value = PlayerManager.isPlaying()
                 _progress.value = PlayerManager.getCurrentPosition()
                 _duration.value = PlayerManager.getDuration()
+
+                // HANDLE REPEAT / NEXT WHEN SONG ENDS
+                if (_duration.value > 0 &&
+                    _progress.value >= _duration.value - 500 &&
+                    _isPlaying.value
+                ) {
+                    when (_repeatMode.value) {
+                        1 -> playNext()                          // repeat all
+                        2 -> _currentSong.value?.let { playSong(it) } // repeat one
+                        else -> { /* no repeat */ }
+                    }
+                }
+
                 delay(1000)
             }
         }
@@ -79,13 +92,26 @@ class PlayerViewModel(
 
     fun playNext() {
         if (playlist.isEmpty()) return
-        currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.size
+
+        currentPlaylistIndex = if (_isShuffle.value && playlist.size > 1) {
+            (playlist.indices - currentPlaylistIndex).random()
+        } else {
+            (currentPlaylistIndex + 1) % playlist.size
+        }
+
         playSong(playlist[currentPlaylistIndex])
     }
 
     fun playPrevious() {
         if (playlist.isEmpty()) return
-        currentPlaylistIndex = if (currentPlaylistIndex - 1 < 0) playlist.size - 1 else currentPlaylistIndex - 1
+
+        currentPlaylistIndex = if (_isShuffle.value && playlist.size > 1) {
+            (playlist.indices - currentPlaylistIndex).random()
+        } else {
+            if (currentPlaylistIndex - 1 < 0) playlist.size - 1
+            else currentPlaylistIndex - 1
+        }
+
         playSong(playlist[currentPlaylistIndex])
     }
 

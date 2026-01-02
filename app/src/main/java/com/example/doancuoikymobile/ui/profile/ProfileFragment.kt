@@ -22,6 +22,7 @@ import com.example.doancuoikymobile.ui.playlist.PlaylistDetailFragment
 import com.example.doancuoikymobile.viewmodel.LibraryViewModel
 import com.example.doancuoikymobile.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import android.widget.Toast
 
 class ProfileFragment : Fragment() {
 
@@ -39,19 +40,26 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
         val rvProfile = view.findViewById<RecyclerView>(R.id.rvProfilePlaylists)
-        val cardAvatar = view.findViewById<androidx.cardview.widget.CardView>(R.id.cardAvatar)
-        val avatarImageView = cardAvatar?.getChildAt(0) as? ImageView
+        val tvDisplayName = view.findViewById<TextView>(R.id.tvDisplayName)
+        val ivProfileAvatar = view.findViewById<ImageView>(R.id.ivProfileAvatar)
 
-        libraryAdapter = LibraryAdapter(displayList) { item ->
-            val detailFragment = PlaylistDetailFragment.newInstance(item.id, item.title)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, detailFragment)
-                .addToBackStack(null)
-                .commit()
-        }
+        libraryAdapter = LibraryAdapter(
+            displayList,
+            onItemClick = { item ->
+                val detailFragment = PlaylistDetailFragment.newInstance(item.id, item.title)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.frameLayout, detailFragment)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onAddClick = { item ->
+                // Nếu chưa cần chức năng thêm thì để trống hoặc show toast
+                Toast.makeText(requireContext(), "Add ${item.title}", Toast.LENGTH_SHORT).show()
+            }
+        )
 
-        rvProfile?.layoutManager = LinearLayoutManager(context)
-        rvProfile?.adapter = libraryAdapter
+        rvProfile.layoutManager = LinearLayoutManager(context)
+        rvProfile.adapter = libraryAdapter
 
         val firebaseUser = authRepository.getCurrentUser()
         if (firebaseUser != null) {
@@ -59,87 +67,41 @@ class ProfileFragment : Fragment() {
             libraryViewModel.loadLibraryData(firebaseUser.uid)
         }
 
-        var nameTextView: TextView? = null
-        var emailTextView: TextView? = null
-
+        // Collect user data to display avatar and name
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 profileViewModel.user.collect { user ->
-                    user?.let {
-                        if (avatarImageView != null && it.avatarUrl != null && it.avatarUrl.isNotEmpty()) {
+                    if (user != null) {
+                        tvDisplayName.text = user.displayName ?: user.username ?: "User"
+                        if (!user.avatarUrl.isNullOrEmpty()) {
                             Glide.with(requireContext())
-                                .load(it.avatarUrl)
-                                .into(avatarImageView)
-                        }
-                        val userName = it.displayName ?: it.username
-                        val userEmail = it.email
-                        if (nameTextView == null) {
-                            nameTextView = TextView(requireContext()).apply {
-                                text = userName
-                                textSize = 20f
-                                textAlignment = View.TEXT_ALIGNMENT_CENTER
-                                setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), android.R.color.black))
-                            }
-                            val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
-                            val parent = btnEditProfile?.parent as? ViewGroup
-                            val index = parent?.indexOfChild(btnEditProfile) ?: 0
-                            val layoutParams = android.widget.LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                topMargin = 16
-                            }
-                            parent?.addView(nameTextView, index + 1, layoutParams)
-                        } else {
-                            nameTextView?.text = userName
-                        }
-                        if (emailTextView == null) {
-                            emailTextView = TextView(requireContext()).apply {
-                                text = userEmail
-                                textSize = 14f
-                                textAlignment = View.TEXT_ALIGNMENT_CENTER
-                                setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-                            }
-                            val parent = nameTextView?.parent as? ViewGroup
-                            val index = parent?.indexOfChild(nameTextView) ?: 0
-                            val layoutParams = android.widget.LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                topMargin = 8
-                            }
-                            parent?.addView(emailTextView, index + 1, layoutParams)
-                        } else {
-                            emailTextView?.text = userEmail
+                                .load(user.avatarUrl)
+                                .circleCrop()
+                                .into(ivProfileAvatar)
                         }
                     }
                 }
             }
         }
 
-        // FIX: Pass the required 'onItemClick' parameter.
-        // For now, it can be an empty lambda if you don't need to handle clicks here.
-        rvProfile.adapter = LibraryAdapter(profileData) {
-
-
-            }
-
-        val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
-        btnEditProfile.setOnClickListener {
-            // Navigate to EditProfileFragment
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, EditProfileFragment())
-                .addToBackStack(null) // Cho phép back về ProfileFragment
-                .commit()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 libraryViewModel.playlists.collect { playlists ->
-                    val models = playlists.map { LibraryModel(it.playlistId, it.name, "Playlist") }
+                    val models =
+                        playlists.map { LibraryModel(it.playlistId, it.name, "Playlist") }
                     displayList.clear()
                     displayList.addAll(models)
                     libraryAdapter.notifyDataSetChanged()
                 }
             }
+        }
+
+        val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
+        btnEditProfile.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, EditProfileFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         return view

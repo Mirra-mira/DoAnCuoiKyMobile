@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.doancuoikymobile.model.Playlist
+import kotlinx.coroutines.flow.asStateFlow
 
 class PlaylistDetailViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -29,6 +30,12 @@ class PlaylistDetailViewModel : ViewModel() {
 
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs: StateFlow<List<Song>> = _songs
+
+    private val _playlistCoverUrl = MutableStateFlow<String?>(null)
+    val playlistCoverUrl: StateFlow<String?> = _playlistCoverUrl.asStateFlow()
+
+    private val _playlistTrackCount = MutableStateFlow<Int>(0)
+    val playlistTrackCount: StateFlow<Int> = _playlistTrackCount.asStateFlow()
 
     /**
      * Tải danh sách bài hát và tự sắp xếp tại Local.
@@ -85,5 +92,28 @@ class PlaylistDetailViewModel : ViewModel() {
 
     suspend fun getUserPlaylists(): List<Playlist> {
         return playlistRepo.getUserPlaylists()
+    }
+
+    /**
+     * Load playlist info (cover image, track count) from Deezer API
+     */
+    fun loadPlaylistInfo(playlistId: String) {
+        viewModelScope.launch {
+            val playlistIdLong = playlistId.toLongOrNull()
+            
+            if (playlistIdLong != null) {
+                // This is a Deezer playlist, load info from Deezer API
+                try {
+                    val playlist = deezerApi.getPlaylist(playlistIdLong)
+                    _playlistCoverUrl.value = playlist.picture_big ?: playlist.picture
+                    _playlistTrackCount.value = playlist.nb_tracks
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+                // Firebase playlist - no cover image from Deezer
+                _playlistCoverUrl.value = null
+            }
+        }
     }
 }

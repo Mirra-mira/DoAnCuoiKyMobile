@@ -22,6 +22,9 @@ import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.PlaylistDetailViewModel
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 import com.example.doancuoikymobile.utils.EmptyStateHelper
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 private const val ARG_ID = "playlist_id"
@@ -57,6 +60,16 @@ class PlaylistDetailFragment : Fragment() {
 
         val rvSongList = view.findViewById<RecyclerView>(R.id.rvSongList)
         emptyStateView = view.findViewById(R.id.emptyStatePlaylist)
+        val btnPlayBig = view.findViewById<ImageView>(R.id.btnPlayBig)
+        val ivCoverArt = view.findViewById<ImageView>(R.id.ivPlaylistCover)
+        val tvPlaylistSubtitle = view.findViewById<TextView>(R.id.tvPlaylistSubtitle)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        // Load liked songs to show like status
+        val libraryViewModel = com.example.doancuoikymobile.viewmodel.LibraryViewModel()
+        currentUser?.let { user ->
+            libraryViewModel.loadLibraryData(user.uid)
+        }
 
         val songListHandler: (LibraryModel) -> Unit = { model ->
             val songToPlay = viewModel.songs.value.find { it.songId == model.id }
@@ -86,38 +99,132 @@ class PlaylistDetailFragment : Fragment() {
                 val song = viewModel.songs.value.find { it.songId == model.id } ?: return@LibraryAdapter
 
                 lifecycleScope.launch {
-                    val playlists = viewModel.getUserPlaylists() // hàm này bạn có thể lấy từ repo
+                    val playlists = viewModel.getUserPlaylists()
                     ChoosePlaylistDialog(requireContext(), playlists) { playlist ->
                         viewModel.addSongToPlaylist(playlist.playlistId, song.songId)
                     }.show()
+                }
+            },
+            onLikeClick = { model ->
+                currentUser?.let { user ->
+                    libraryViewModel.toggleLikeSong(user.uid, model.id)
                 }
             }
         )
         rvSongList.layoutManager = LinearLayoutManager(context)
         rvSongList.adapter = libraryAdapter
 
-        playlistId?.let { viewModel.loadPlaylistSongs(it) }
+        playlistId?.let { 
+            viewModel.loadPlaylistSongs(it)
+            viewModel.loadPlaylistInfo(it)
+        }
+
+        // Setup play button
+        btnPlayBig.setOnClickListener {
+            val songs = viewModel.songs.value
+            if (songs.isNotEmpty()) {
+                PlayerManager.playSong(songs[0])
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.frameLayout,
+                        PlayerFragment.newInstance(
+                            song = songs[0],
+                            playlist = songs,
+                            startIndex = 0
+                        )
+                    )
+                    .addToBackStack("PlaylistDetail")
+                    .commit()
+            }
+        }
+
+        // Observe playlist cover image
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.playlistCoverUrl.collect { coverUrl ->
+                    coverUrl?.let { url ->
+                        Glide.with(this@PlaylistDetailFragment)
+                            .load(url)
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .into(ivCoverArt)
+                    }
+                }
+            }
+        }
+
+        // Observe playlist track count
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.playlistTrackCount.collect { count ->
+                    if (count > 0) {
+                        tvPlaylistSubtitle.text = "$count songs"
+                    }
+                }
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.songs.collect { songList ->
-                    val models = songList.map {
-                        // Map title và dùng mainArtistId làm subtitle cho LibraryModel
-                        LibraryModel(it.songId, it.title, it.mainArtistId ?: "")
+                if (currentUser != null) {
+                    // Combine songs and liked song IDs
+                    combine(
+                        viewModel.songs,
+                        libraryViewModel.likedSongIds
+                    ) { songs, likedIds ->
+                        songs.map { song ->
+                            LibraryModel(
+                                id = song.songId,
+                                title = song.title,
+                                subtitle = song.artistName ?: "",
+                                isLiked = song.songId in likedIds
+                            )
+                        }
+                    }.collect { models ->
+                        displayList.clear()
+                        displayList.addAll(models)
+                        libraryAdapter.notifyDataSetChanged()
+                        
+                        // Update track count if not from Deezer
+                        if (viewModel.playlistTrackCount.value == 0 && models.isNotEmpty()) {
+                            tvPlaylistSubtitle.text = "${models.size} songs"
+                        }
+                        
+                        // Handle empty state
+                        EmptyStateHelper.handleEmptyState(emptyStateView, rvSongList, models.isEmpty())
+                        if (models.isEmpty()) {
+                            EmptyStateHelper.updateEmptyState(
+                                emptyStateView,
+                                iconResId = R.drawable.ic_music_note,
+                                title = "No Songs",
+                                message = "Add songs to this playlist to get started"
+                            )
+                        }
                     }
-                    displayList.clear()
-                    displayList.addAll(models)
-                    libraryAdapter.notifyDataSetChanged()
-                    
-                    // Handle empty state
-                    EmptyStateHelper.handleEmptyState(emptyStateView, rvSongList, songList.isEmpty())
-                    if (songList.isEmpty()) {
-                        EmptyStateHelper.updateEmptyState(
-                            emptyStateView,
-                            iconResId = R.drawable.ic_music_note,
-                            title = "No Songs",
-                            message = "Add songs to this playlist to get started"
-                        )
+                } else {
+                    // No user logged in, just show songs without like status
+                    viewModel.songs.collect { songList ->
+                        val models = songList.map {
+                            LibraryModel(it.songId, it.title, it.artistName ?: "", false)
+                        }
+                        displayList.clear()
+                        displayList.addAll(models)
+                        libraryAdapter.notifyDataSetChanged()
+                        
+                        // Update track count if not from Deezer
+                        if (viewModel.playlistTrackCount.value == 0 && models.isNotEmpty()) {
+                            tvPlaylistSubtitle.text = "${models.size} songs"
+                        }
+                        
+                        // Handle empty state
+                        EmptyStateHelper.handleEmptyState(emptyStateView, rvSongList, models.isEmpty())
+                        if (models.isEmpty()) {
+                            EmptyStateHelper.updateEmptyState(
+                                emptyStateView,
+                                iconResId = R.drawable.ic_music_note,
+                                title = "No Songs",
+                                message = "Add songs to this playlist to get started"
+                            )
+                        }
                     }
                 }
             }

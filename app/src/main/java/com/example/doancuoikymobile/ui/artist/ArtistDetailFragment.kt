@@ -21,6 +21,7 @@ import com.example.doancuoikymobile.player.PlayerManager
 import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.ArtistDetailViewModel
 import com.example.doancuoikymobile.utils.EmptyStateHelper
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 private const val ARG_ARTIST_ID = "artist_id"
@@ -52,6 +53,10 @@ class ArtistDetailFragment : Fragment() {
 
         val rvSongList = view.findViewById<RecyclerView>(R.id.rvSongList)
         emptyStateView = view.findViewById(R.id.emptyStateArtist)
+        val btnFollow = view.findViewById<ImageView>(R.id.btnFollow)
+        val btnPlayBig = view.findViewById<ImageView>(R.id.btnPlayBig)
+        
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
         val songListHandler: (LibraryModel) -> Unit = { model ->
             val songToPlay = viewModel.songs.value.find { it.songId == model.id }
@@ -83,7 +88,41 @@ class ArtistDetailFragment : Fragment() {
         rvSongList.adapter = libraryAdapter
 
         // Load artist data
-        artistId?.let { viewModel.loadArtist(it) }
+        artistId?.let { 
+            viewModel.loadArtist(it)
+            currentUser?.let { user ->
+                viewModel.checkFollowStatus(user.uid, it)
+            }
+        }
+
+        // Setup follow button
+        btnFollow.setOnClickListener {
+            val artist = viewModel.artist.value
+            currentUser?.let { user ->
+                artist?.let {
+                    viewModel.toggleFollow(user.uid, it)
+                }
+            }
+        }
+
+        // Setup play button
+        btnPlayBig.setOnClickListener {
+            val songs = viewModel.songs.value
+            if (songs.isNotEmpty()) {
+                PlayerManager.playSong(songs[0])
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.frameLayout,
+                        PlayerFragment.newInstance(
+                            song = songs[0],
+                            playlist = songs,
+                            startIndex = 0
+                        )
+                    )
+                    .addToBackStack("ArtistDetail")
+                    .commit()
+            }
+        }
 
         // Observe artist data
         viewLifecycleOwner.lifecycleScope.launch {
@@ -106,6 +145,17 @@ class ArtistDetailFragment : Fragment() {
                                 .into(view.findViewById(R.id.ivArtistImage))
                         }
                     }
+                }
+            }
+        }
+
+        // Observe follow status
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isFollowed.collect { isFollowed ->
+                    btnFollow.setImageResource(
+                        if (isFollowed) R.drawable.ic_heart_filled else R.drawable.ic_heart_outline
+                    )
                 }
             }
         }

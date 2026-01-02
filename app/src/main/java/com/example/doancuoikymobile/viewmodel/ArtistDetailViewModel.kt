@@ -8,6 +8,11 @@ import com.example.doancuoikymobile.data.remote.api.DeezerRetrofitClient
 import com.example.doancuoikymobile.data.remote.api.toSong
 import com.example.doancuoikymobile.model.Artist
 import com.example.doancuoikymobile.model.Song
+import com.example.doancuoikymobile.repository.ArtistRepository
+import com.example.doancuoikymobile.repository.FollowedArtistRepository
+import com.example.doancuoikymobile.data.remote.firebase.ArtistRemoteDataSource
+import com.example.doancuoikymobile.data.remote.firebase.FollowedArtistRemoteDataSource
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +21,9 @@ import kotlinx.coroutines.launch
 class ArtistDetailViewModel : ViewModel() {
     private val deezerApi: DeezerApiService = DeezerRetrofitClient.deezerApiService
     private val deezerArtistDataSource: DeezerArtistDataSource = DeezerArtistDataSource()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val artistRepo = ArtistRepository(ArtistRemoteDataSource(firestore))
+    private val followedArtistRepo = FollowedArtistRepository(FollowedArtistRemoteDataSource(firestore))
 
     private val _artist = MutableStateFlow<Artist?>(null)
     val artist: StateFlow<Artist?> = _artist.asStateFlow()
@@ -28,6 +36,9 @@ class ArtistDetailViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _isFollowed = MutableStateFlow(false)
+    val isFollowed: StateFlow<Boolean> = _isFollowed.asStateFlow()
 
     fun loadArtist(artistId: String) {
         viewModelScope.launch {
@@ -53,6 +64,33 @@ class ArtistDetailViewModel : ViewModel() {
                 e.printStackTrace()
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun checkFollowStatus(userId: String, artistId: String) {
+        viewModelScope.launch {
+            try {
+                val isFollowed = followedArtistRepo.isFollowed(userId, artistId)
+                _isFollowed.value = isFollowed
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun toggleFollow(userId: String, artist: Artist) {
+        viewModelScope.launch {
+            try {
+                // First, save artist to Firestore if not exists
+                artistRepo.upsertArtist(artist)
+                
+                // Then toggle follow status
+                val isCurrentlyFollowed = _isFollowed.value
+                followedArtistRepo.toggleFollowArtist(userId, artist.artistId, isCurrentlyFollowed)
+                _isFollowed.value = !isCurrentlyFollowed
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

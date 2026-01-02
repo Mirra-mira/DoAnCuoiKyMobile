@@ -67,18 +67,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvArtistTitle" />
 
-    <ImageView
-        android:id="@+id/btnPlayBig"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+    <LinearLayout
+        android:id="@+id/llActionButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:src="@null"
-        android:background="@drawable/ic_play_to_pause"
-        app:tint="#FFFFFF"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toTopOf="@id/rvSongList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvArtistSubtitle"
-        app:layout_constraintVertical_bias="0.5"/>
+        app:layout_constraintVertical_bias="0.5">
+
+        <ImageView
+            android:id="@+id/btnFollow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_heart_outline"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="?attr/colorOnBackground" />
+
+        <ImageView
+            android:id="@+id/btnPlayBig"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@null"
+            android:background="@drawable/ic_play_to_pause"
+            app:tint="#FFFFFF" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSongList"

@@ -19,14 +19,15 @@ import com.example.doancuoikymobile.adapter.LibraryAdapter
 import com.example.doancuoikymobile.adapter.LibraryModel
 import com.example.doancuoikymobile.viewmodel.LibraryViewModel
 import com.example.doancuoikymobile.model.Playlist
-import com.example.doancuoikymobile.model.Song
 import com.example.doancuoikymobile.utils.EmptyStateHelper
+import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import android.widget.ImageView
 import java.util.UUID
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import android.widget.Toast
 
 class LibraryFragment : Fragment() {
 
@@ -99,7 +100,10 @@ class LibraryFragment : Fragment() {
         libraryAdapter = LibraryAdapter(
             displayList,
             onItemClick = itemClickHandler,
-            onAddClick = { /* TODO: handle add button click */ },
+            onAddClick = { item ->
+                // Logic khi nhấn nút (+)
+                showChoosePlaylistDialog(item.id)
+            },
             onLikeClick = likeClickHandler
         )
         rvLibrary.layoutManager = LinearLayoutManager(context)
@@ -174,14 +178,15 @@ class LibraryFragment : Fragment() {
 
             // Recently Played Songs (cho tab Songs)
             launch {
-                viewModel.recentlyPlayed.collect { list ->
+                viewModel.recentlyPlayed.collect { recentList ->
                     if (currentTab == TabMode.SONGS && sortMode == SortMode.RECENTLY_PLAYED) {
-                        val models = list.map { recent ->
-                            // Tìm thông tin bài hát từ ViewModel
+                        val allSongs = viewModel.allSongs.value
+                        val models = recentList.map { recent ->
+                            val songInfo = allSongs.find { it.songId == recent.songId }
                             LibraryModel(
                                 id = recent.songId,
-                                title = recent.songId,  // Tên bài hát sẽ được update từ songs
-                                subtitle = "Recently Played"
+                                title = songInfo?.title ?: "Unknown Song",
+                                subtitle = songInfo?.artistName ?: "Unknown Artist"
                             )
                         }
                         loadData(models)
@@ -286,6 +291,29 @@ class LibraryFragment : Fragment() {
                 btnSongs.tag = "selected"
             }
         }
+    }
+
+    private fun showChoosePlaylistDialog(songId: String) {
+        val playlists = viewModel.getCurrentPlaylists()
+
+        if (playlists.isEmpty()) {
+            Toast.makeText(requireContext(), "Bạn chưa có playlist nào. Hãy tạo mới!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val dialog = ChoosePlaylistDialog(
+            context = requireContext(),
+            playlists = playlists,
+            onSelect = { selectedPlaylist ->
+                viewModel.addSongToPlaylist(selectedPlaylist.playlistId, songId)
+                Toast.makeText(
+                    requireContext(),
+                    "Đã thêm vào ${selectedPlaylist.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+        dialog.show()
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -13,6 +13,10 @@ import com.example.doancuoikymobile.data.remote.firebase.ArtistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.RecentlyPlayedDataSource
 import com.example.doancuoikymobile.repository.LikedSongRepository
 import com.example.doancuoikymobile.data.remote.firebase.LikedSongRemoteDataSource
+import com.example.doancuoikymobile.repository.PlaylistRepository
+import com.example.doancuoikymobile.data.remote.firebase.PlaylistRemoteDataSource
+import com.example.doancuoikymobile.data.remote.firebase.PlaylistSongDataSource
+import com.example.doancuoikymobile.model.Playlist
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +28,11 @@ class PlayerViewModel(
     private val songRepository: SongRepository = SongRepository(),
     private val recentlyPlayedRepository: RecentlyPlayedRepository = RecentlyPlayedRepository(RecentlyPlayedDataSource()),
     private val authRepository: AuthRepository = AuthRepository(),
-    private val likedSongRepository: LikedSongRepository = LikedSongRepository(LikedSongRemoteDataSource(FirebaseFirestore.getInstance()))
+    private val likedSongRepository: LikedSongRepository = LikedSongRepository(LikedSongRemoteDataSource(FirebaseFirestore.getInstance())),
+    private val playlistRepository: PlaylistRepository = PlaylistRepository(
+        PlaylistRemoteDataSource(FirebaseFirestore.getInstance()),
+        PlaylistSongDataSource(FirebaseFirestore.getInstance())
+    )
 ) : ViewModel() {
 
     private val _currentSong = MutableStateFlow<Song?>(null)
@@ -55,8 +63,31 @@ class PlayerViewModel(
     private val playlist = mutableListOf<Song>()
     private var currentPlaylistIndex = -1
 
+    private val _userPlaylists = MutableStateFlow<List<Playlist>>(emptyList())
+    val userPlaylists = _userPlaylists.asStateFlow()
+
     init {
         observePlayerState()
+        loadUserPlaylists() // Load danh sách playlist ngay khi init
+    }
+
+    // Hàm load danh sách playlist để hiển thị trong Dialog
+    private fun loadUserPlaylists() {
+        val userId = authRepository.getCurrentUser()?.uid ?: return
+        viewModelScope.launch {
+            // Sử dụng hàm watch hoặc get tùy theo Repo của bạn
+            playlistRepository.watchUserPlaylists(userId).collect {
+                _userPlaylists.value = it
+            }
+        }
+    }
+
+    // Hàm thực hiện thêm bài hát hiện tại vào một playlist cụ thể
+    fun addCurrentSongToPlaylist(playlistId: String) {
+        val songId = _currentSong.value?.songId ?: return
+        viewModelScope.launch {
+            playlistRepository.addSongToPlaylist(playlistId, songId)
+        }
     }
 
     private fun observePlayerState() {
@@ -165,44 +196,46 @@ class PlayerViewModel(
     fun playSong(song: Song) {
         viewModelScope.launch {
             var playedSong = song
-            if (song.audioUrl.isEmpty() && song.songId.isNotEmpty()) {
-                val firebaseSong = songRepository.getSongById(song.songId)
+
+            // Nếu audioUrl trống, thử tìm trong Firebase
+            if (playedSong.audioUrl.isEmpty() && playedSong.songId.isNotEmpty()) {
+                val firebaseSong = songRepository.getSongById(playedSong.songId)
                 if (firebaseSong != null && firebaseSong.audioUrl.isNotEmpty()) {
                     playedSong = firebaseSong
                 }
             }
 
-            val urlToPlay = when {
+            // Xác định URL thực tế sẽ dùng để phát
+            val finalUrl = when {
                 playedSong.audioUrl.isNotEmpty() -> playedSong.audioUrl
                 !playedSong.previewUrl.isNullOrEmpty() -> playedSong.previewUrl
                 else -> null
             }
 
-            if (urlToPlay != null) {
-                PlayerManager.playSong(playedSong)
-                _currentSong.value = playedSong
-                // Cập nhật trạng thái Like ngay khi bắt đầu bài hát mới
-                checkLikeStatus(playedSong.songId)
+            // Xử lý phát nhạc
+            if (finalUrl != null) {
+                // Tạo một bản copy có audioUrl là link hợp lệ (dù là link preview)
+                // Điều này đảm bảo PlayerManager luôn có link để load source.
+                val songToPlay = playedSong.copy(audioUrl = finalUrl)
+
+                PlayerManager.playSong(songToPlay)
+                _currentSong.value = songToPlay
+
+                checkLikeStatus(songToPlay.songId)
             }
 
             val currentUser = authRepository.getCurrentUser()
             if (currentUser != null) {
                 recentlyPlayedRepository.addPlayed(RecentlyPlayed(currentUser.uid, song.songId, System.currentTimeMillis()))
             }
-            
+
             song.mainArtistId?.let { artistId ->
                 if (artistId.isNotEmpty()) {
                     artistRepository.getArtistOnce(artistId)?.let { artist ->
                         _artistName.value = artist.name
-                    } ?: run {
-                        _artistName.value = song.artistName ?: ""
-                    }
-                } else {
-                    _artistName.value = song.artistName ?: ""
-                }
-            } ?: run {
-                _artistName.value = song.artistName ?: ""
-            }
+                    } ?: run { _artistName.value = song.artistName ?: "" }
+                } else { _artistName.value = song.artistName ?: "" }
+            } ?: run { _artistName.value = song.artistName ?: "" }
         }
     }
 }

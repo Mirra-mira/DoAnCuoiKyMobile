@@ -73,10 +73,7 @@ class LibraryViewModel : ViewModel() {
 
     // Hàm lấy dữ liệu từ Firestore dựa trên UserId [cite: 1203, 1116]
     fun loadLibraryData(userId: String) {
-        // Chỉ load một lần cho mỗi user
-        if (libraryDataLoadedForUser == userId) {
-            return
-        }
+        if (libraryDataLoadedForUser == userId) return
         libraryDataLoadedForUser = userId
         currentUserId = userId
 
@@ -95,7 +92,6 @@ class LibraryViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            // Theo dõi tất cả Songs
             songRepo.getAllSongs().collect { list ->
                 _allSongs.value = list
             }
@@ -111,21 +107,24 @@ class LibraryViewModel : ViewModel() {
 
         // Watch liked songs with real-time updates
         viewModelScope.launch {
-            likedSongRepo.watchUserLikedSongs(userId).collect { likedSongs ->
-                val likedIds = likedSongs.map { it.songId }
+            combine(likedSongRepo.watchUserLikedSongs(userId), _allSongs) { likedObjects, allSongsList ->
+                val likedIds = likedObjects.map { it.songId }
                 _likedSongIds.value = likedIds
-                val liked = _allSongs.value.filter { it.songId in likedIds }
-                _likedSongs.value = liked
+                // Lọc trực tiếp từ allSongsList mới nhất vừa nhận được
+                allSongsList.filter { it.songId in likedIds }
+            }.collect { filteredList ->
+                _likedSongs.value = filteredList
             }
         }
 
         // Watch followed artists with real-time updates
         viewModelScope.launch {
-            followedArtistRepo.watchUserFollowedArtists(userId).collect { followedArtists ->
-                val followedIds = followedArtists.map { it.artistId }
+            combine(followedArtistRepo.watchUserFollowedArtists(userId), _artists) { followedObjects, allArtists ->
+                val followedIds = followedObjects.map { it.artistId }
                 _followedArtistIds.value = followedIds
-                val followed = _artists.value.filter { it.artistId in followedIds }
-                _followedArtists.value = followed
+                allArtists.filter { it.artistId in followedIds }
+            }.collect { filteredArtists ->
+                _followedArtists.value = filteredArtists
             }
         }
     }

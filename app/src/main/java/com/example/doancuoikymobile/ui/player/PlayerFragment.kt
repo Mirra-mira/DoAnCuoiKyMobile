@@ -16,6 +16,8 @@ import com.example.doancuoikymobile.player.PlayerManager
 import com.example.doancuoikymobile.viewmodel.PlayerViewModel
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
+import android.widget.Toast
+import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 
 class PlayerFragment : Fragment() {
 
@@ -32,6 +34,7 @@ class PlayerFragment : Fragment() {
     private lateinit var tvTotalTime: TextView
     private lateinit var imgPlayer: ImageView
     private lateinit var btnLike: ImageView
+    private lateinit var btnAddToPlaylist: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +54,7 @@ class PlayerFragment : Fragment() {
         tvTotalTime = view.findViewById(R.id.tvTotalTime)
         imgPlayer = view.findViewById(R.id.imgPlayer)
         btnLike = view.findViewById(R.id.btnLikeSong)
+        btnAddToPlaylist = view.findViewById(R.id.btnAddToPlaylist)
 
         view.findViewById<ImageView>(R.id.btnClosePlayer)?.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -92,6 +96,30 @@ class PlayerFragment : Fragment() {
 
         btnLike.setOnClickListener {
             viewModel.toggleLikeCurrentSong()
+        }
+
+        btnAddToPlaylist.setOnClickListener {
+            val currentSong = viewModel.currentSong.value
+            if (currentSong == null) {
+                Toast.makeText(requireContext(), "No song is playing", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Mở Dialog chọn playlist
+            val dialog = ChoosePlaylistDialog(
+                context = requireContext(),
+                // userPlaylists phải được quan sát từ PlayerViewModel
+                playlists = viewModel.userPlaylists.value,
+                onSelect = { selectedPlaylist ->
+                    viewModel.addCurrentSongToPlaylist(selectedPlaylist.playlistId)
+                    Toast.makeText(
+                        requireContext(),
+                        "Added to ${selectedPlaylist.name}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+            dialog.show()
         }
 
         return view

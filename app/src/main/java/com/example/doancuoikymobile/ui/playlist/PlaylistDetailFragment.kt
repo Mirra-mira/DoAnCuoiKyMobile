@@ -23,6 +23,7 @@ import com.example.doancuoikymobile.viewmodel.PlaylistDetailViewModel
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 import com.example.doancuoikymobile.utils.EmptyStateHelper
 import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import com.example.doancuoikymobile.adapter.ItemType
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -175,6 +176,8 @@ class PlaylistDetailFragment : Fragment() {
                                 id = song.songId,
                                 title = song.title,
                                 subtitle = song.artistName ?: "",
+                                imageUrl = song.coverUrl,
+                                type = ItemType.SONG,
                                 isLiked = song.songId in likedIds
                             )
                         }
@@ -203,7 +206,14 @@ class PlaylistDetailFragment : Fragment() {
                     // No user logged in, just show songs without like status
                     viewModel.songs.collect { songList ->
                         val models = songList.map {
-                            LibraryModel(it.songId, it.title, it.artistName ?: "", false)
+                            LibraryModel(
+                                id = it.songId,
+                                title = it.title,
+                                subtitle = it.artistName ?: "",
+                                imageUrl = it.coverUrl,
+                                type = ItemType.SONG,
+                                isLiked = false
+                            )
                         }
                         displayList.clear()
                         displayList.addAll(models)

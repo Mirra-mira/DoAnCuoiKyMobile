@@ -21,6 +21,7 @@ import com.example.doancuoikymobile.repository.AuthRepository
 import com.example.doancuoikymobile.ui.playlist.PlaylistDetailFragment
 import com.example.doancuoikymobile.viewmodel.LibraryViewModel
 import com.example.doancuoikymobile.viewmodel.ProfileViewModel
+import com.example.doancuoikymobile.adapter.ItemType
 import kotlinx.coroutines.launch
 import android.widget.Toast
 
@@ -88,7 +89,15 @@ class ProfileFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 libraryViewModel.playlists.collect { playlists ->
                     val models =
-                        playlists.map { LibraryModel(it.playlistId, it.name, "Playlist") }
+                        playlists.map { LibraryModel(
+                            id = it.playlistId,
+                            title = it.name,
+                            subtitle = "Playlist",
+//                            imageUrl = it.coverUrl,   // hoặc null
+                            type = ItemType.PLAYLIST,
+                            isLiked = false
+                        )
+                        }
                     displayList.clear()
                     displayList.addAll(models)
                     libraryAdapter.notifyDataSetChanged()

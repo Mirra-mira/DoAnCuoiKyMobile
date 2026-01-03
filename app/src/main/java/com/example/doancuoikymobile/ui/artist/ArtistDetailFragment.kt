@@ -22,6 +22,7 @@ import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.ArtistDetailViewModel
 import com.example.doancuoikymobile.utils.EmptyStateHelper
 import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import com.example.doancuoikymobile.adapter.ItemType
 import androidx.fragment.app.activityViewModels
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -164,7 +165,14 @@ class ArtistDetailFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.songs.collect { songList ->
                     val models = songList.map {
-                        LibraryModel(it.songId, it.title, it.artistName ?: "")
+                        LibraryModel(
+                            id = it.songId,
+                            title = it.title,
+                            subtitle = it.artistName ?: "",
+                            imageUrl = it.coverUrl,          // nếu không có thì null
+                            type = ItemType.SONG,
+                            isLiked = false
+                        )
                     }
                     displayList.clear()
                     displayList.addAll(models)

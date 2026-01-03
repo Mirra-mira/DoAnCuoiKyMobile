@@ -21,6 +21,7 @@ import com.example.doancuoikymobile.viewmodel.LibraryViewModel
 import com.example.doancuoikymobile.model.Playlist
 import com.example.doancuoikymobile.utils.EmptyStateHelper
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
+import com.example.doancuoikymobile.ui.artist.ArtistDetailFragment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import android.widget.ImageView
@@ -28,6 +29,7 @@ import java.util.UUID
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import android.widget.Toast
+import com.example.doancuoikymobile.adapter.ItemType
 
 class LibraryFragment : Fragment() {
 
@@ -78,11 +80,37 @@ class LibraryFragment : Fragment() {
 
         // Setup Click Handler: Chuyển đến PlaylistDetailFragment khi click vào playlist
         val itemClickHandler: (LibraryModel) -> Unit = { item ->
-            val detailFragment = PlaylistDetailFragment.newInstance(item.id, item.title)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, detailFragment)
-                .addToBackStack("Library")
-                .commit()
+            // 1. Tìm Fragment tương ứng hoặc xử lý phát nhạc
+            val fragment: Fragment? = when (item.type) {
+                ItemType.ARTIST -> {
+                    ArtistDetailFragment.newInstance(item.id)
+                }
+                ItemType.PLAYLIST -> {
+                    PlaylistDetailFragment.newInstance(item.id, item.title)
+                }
+                ItemType.SONG -> {
+                    // Xử lý phát nhạc ngay tại đây
+                    // Giả sử bạn có PlayerViewModel hoặc gọi qua MainActivity
+                    // playSong(item.id)
+                    Toast.makeText(context, "Đang phát: ${item.title}", Toast.LENGTH_SHORT).show()
+
+                    null // Trả về null để không thực hiện chuyển Fragment bên dưới
+                }
+            }
+
+            // 2. Nếu có Fragment (Artist/Playlist) thì mới thực hiện chuyển màn hình
+            fragment?.let { targetFragment ->
+                parentFragmentManager.beginTransaction()
+//                    .setCustomAnimations(
+//                        R.anim.slide_in_right, // Thêm animation nếu có
+//                        R.anim.fade_out,
+//                        R.anim.fade_in,
+//                        R.anim.slide_out_right
+//                    )
+                    .replace(R.id.frameLayout, targetFragment)
+                    .addToBackStack("Library")
+                    .commit()
+            }
         }
 
         // Setup Like/Follow handler
@@ -126,7 +154,12 @@ class LibraryFragment : Fragment() {
                 tvSortLabel.text = "Recently played"
                 // Trigger data load immediately
                 viewModel.playlists.value.let { playlists ->
-                    val models = playlists.map { LibraryModel(it.playlistId, it.name, "Playlist") }
+                    val models = playlists.map { LibraryModel(
+                        id = it.playlistId,
+                        title = it.name,
+                        subtitle = "Playlist",
+                        type = ItemType.PLAYLIST
+                    ) }
                     loadData(models)
                 }
             }
@@ -138,7 +171,13 @@ class LibraryFragment : Fragment() {
                 tvSortLabel.text = "Recently played"
                 // Trigger data load immediately
                 viewModel.artists.value.let { artists ->
-                    val models = artists.map { LibraryModel(it.artistId, it.name, "Artist") }
+                    val models = artists.map { LibraryModel(
+                        id = it.artistId,
+                        title = it.name,
+                        subtitle = "Artist",
+                        type = ItemType.ARTIST
+                    )
+                    }
                     loadData(models)
                 }
             }
@@ -151,14 +190,24 @@ class LibraryFragment : Fragment() {
                 // Trigger data load immediately
                 viewModel.recentlyPlayed.value.let { songs ->
                     val models = songs.map { recent ->
-                        LibraryModel(recent.songId, recent.songId, "Recently Played")
+                        LibraryModel(
+                            id = recent.songId,
+                            title = recent.songId,
+                            subtitle = "Recently Played",
+                            type = ItemType.SONG
+                        )
                     }
                     loadData(models)
                     // Also prepare liked songs for non-recent mode
                     if (sortMode == SortMode.RECENTLY_PLAYED) {
                         viewModel.likedSongs.value.let { liked ->
                             val likedModels = liked.map { song ->
-                                LibraryModel(song.songId, song.title, song.artistName ?: "Unknown Artist")
+                                LibraryModel(
+                                    id = song.songId,
+                                    title = song.title,
+                                    subtitle = song.artistName ?: "Unknown Artist",
+                                    type = ItemType.SONG
+                                )
                             }
                             loadData(likedModels)
                         }
@@ -186,7 +235,8 @@ class LibraryFragment : Fragment() {
                             LibraryModel(
                                 id = recent.songId,
                                 title = songInfo?.title ?: "Unknown Song",
-                                subtitle = songInfo?.artistName ?: "Unknown Artist"
+                                subtitle = songInfo?.artistName ?: "Unknown Artist",
+                                type = ItemType.SONG
                             )
                         }
                         loadData(models)
@@ -202,7 +252,8 @@ class LibraryFragment : Fragment() {
                             LibraryModel(
                                 id = song.songId,
                                 title = song.title,
-                                subtitle = song.artistName ?: "Unknown Artist"
+                                subtitle = song.artistName ?: "Unknown Artist",
+                                type = ItemType.SONG
                             )
                         }
                         loadData(models)
@@ -214,9 +265,7 @@ class LibraryFragment : Fragment() {
             launch {
                 viewModel.playlists.collect { list ->
                     if (currentTab == TabMode.PLAYLISTS) {
-                        val models = list.map {
-                            LibraryModel(it.playlistId, it.name, "Playlist")
-                        }
+                        val models = list.map { LibraryModel(it.playlistId, it.name, "Playlist", type = ItemType.PLAYLIST) }
                         loadData(models)
                     }
                 }
@@ -226,8 +275,24 @@ class LibraryFragment : Fragment() {
             launch {
                 viewModel.artists.collect { list ->
                     if (currentTab == TabMode.ARTISTS) {
-                        val models = list.map {
-                            LibraryModel(it.artistId, it.name, "Artist")
+                        val followedIds = viewModel.followedArtistIds.value
+                        val models = list.map { LibraryModel(it.artistId, it.name, "Artist", type = ItemType.ARTIST) }
+                        loadData(models)
+                    }
+                }
+            }
+
+            launch {
+                viewModel.likedSongs.collect { list ->
+                    if (currentTab == TabMode.SONGS && sortMode != SortMode.RECENTLY_PLAYED) {
+                        val models = list.map { song ->
+                            LibraryModel(
+                                song.songId,
+                                song.title,
+                                song.artistName ?: "Unknown Artist",
+                                type = ItemType.SONG,
+                                isLiked = true
+                            )
                         }
                         loadData(models)
                     }
@@ -335,10 +400,27 @@ class LibraryFragment : Fragment() {
                 // Quay lại Recently played (mặc định là lấy từ ViewModel theo thứ tự mới nhất)
                 // Reload dữ liệu gốc từ ViewModel
                 val models = when (currentTab) {
-                    TabMode.PLAYLISTS -> viewModel.playlists.value.map { LibraryModel(it.playlistId, it.name, "Playlist") }
-                    TabMode.ARTISTS -> viewModel.artists.value.map { LibraryModel(it.artistId, it.name, "Artist") }
-                    TabMode.SONGS -> viewModel.recentlyPlayed.value.map { 
-                        LibraryModel(it.songId, it.songId, "Recently Played") 
+                    TabMode.PLAYLISTS -> viewModel.playlists.value.map { LibraryModel(
+                        id = it.playlistId,
+                        title = it.name,
+                        subtitle = "Playlist",
+                        type = ItemType.PLAYLIST
+                    )
+                    }
+                    TabMode.ARTISTS -> viewModel.artists.value.map { LibraryModel(
+                        id = it.artistId,
+                        title = it.name,
+                        subtitle = "Artist",
+                        type = ItemType.ARTIST
+                    )
+                    }
+                    TabMode.SONGS -> viewModel.recentlyPlayed.value.map {
+                        LibraryModel(
+                            id = it.songId,
+                            title = it.songId,
+                            subtitle = "Recently Played",
+                            type = ItemType.SONG
+                        )
                     }
                 }
                 loadData(models)

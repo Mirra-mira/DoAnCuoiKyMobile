@@ -18,10 +18,11 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
 import android.widget.Toast
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
+import androidx.fragment.app.activityViewModels
 
 class PlayerFragment : Fragment() {
 
-    private val viewModel: PlayerViewModel by viewModels()
+    private val viewModel: PlayerViewModel by activityViewModels()
     private lateinit var btnPlay: ImageView
     private lateinit var btnNext: ImageView
     private lateinit var btnPrev: ImageView

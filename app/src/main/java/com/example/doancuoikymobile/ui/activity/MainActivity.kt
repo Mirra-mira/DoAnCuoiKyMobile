@@ -59,6 +59,12 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) replaceFragment(HomeFragment())
         setupBottomNav()
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.frameLayout)
+            // Nếu Fragment hiện tại KHÔNG PHẢI là PlayerFragment, thì cập nhật lại isPlayerScreen
+            isPlayerScreen = currentFragment is PlayerFragment
+            updateMiniPlayerVisibility()
+        }
     }
     private fun updateMiniPlayerVisibility() {
         val currentSong = playerViewModel.currentSong.value
@@ -116,15 +122,21 @@ class MainActivity : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment) {
         isPlayerScreen = fragment is PlayerFragment
 
-        // Sau khi thay đổi isPlayerScreen, phải cập nhật lại ẩn hiện MiniPlayer
-        updateMiniPlayerVisibility()
-
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .apply {
-                // Chỉ add to backstack nếu không phải là các trang chính của BottomNav
-                if (isPlayerScreen) addToBackStack(null)
+                // SỬA CHỖ NÀY: Để BackStack có tên để dễ quản lý
+                if (isPlayerScreen) {
+                    addToBackStack("Player")
+                } else {
+                    // Nếu chuyển sang các Tab chính thì nên xóa hết BackStack cũ
+                    // để tránh bấm Back nhiều lần mới thoát được app
+                    supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                }
             }
             .commit()
+
+        // Luôn gọi update sau khi commit
+        updateMiniPlayerVisibility()
     }
 }

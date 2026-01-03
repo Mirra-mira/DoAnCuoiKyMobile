@@ -22,6 +22,8 @@ import com.example.doancuoikymobile.model.Playlist
 import com.example.doancuoikymobile.utils.EmptyStateHelper
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 import com.example.doancuoikymobile.ui.artist.ArtistDetailFragment
+import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import com.example.doancuoikymobile.model.Song
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import android.widget.ImageView
@@ -30,6 +32,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import android.widget.Toast
 import com.example.doancuoikymobile.adapter.ItemType
+import androidx.fragment.app.activityViewModels
 
 class LibraryFragment : Fragment() {
 
@@ -61,6 +64,7 @@ class LibraryFragment : Fragment() {
     private var displayList = ArrayList<LibraryModel>()
 
     private val viewModel: LibraryViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,33 +84,32 @@ class LibraryFragment : Fragment() {
 
         // Setup Click Handler: Chuyển đến PlaylistDetailFragment khi click vào playlist
         val itemClickHandler: (LibraryModel) -> Unit = { item ->
-            // 1. Tìm Fragment tương ứng hoặc xử lý phát nhạc
             val fragment: Fragment? = when (item.type) {
-                ItemType.ARTIST -> {
-                    ArtistDetailFragment.newInstance(item.id)
-                }
-                ItemType.PLAYLIST -> {
-                    PlaylistDetailFragment.newInstance(item.id, item.title)
-                }
+                ItemType.ARTIST -> ArtistDetailFragment.newInstance(item.id)
+                ItemType.PLAYLIST -> PlaylistDetailFragment.newInstance(item.id, item.title)
+                // Trong itemClickHandler, tìm nhánh ItemType.SONG và sửa thành:
                 ItemType.SONG -> {
-                    // Xử lý phát nhạc ngay tại đây
-                    // Giả sử bạn có PlayerViewModel hoặc gọi qua MainActivity
-                    // playSong(item.id)
-                    Toast.makeText(context, "Đang phát: ${item.title}", Toast.LENGTH_SHORT).show()
+                    // 1. Hiển thị thông báo nhỏ để người dùng biết đang chuẩn bị tải nhạc
+                    Toast.makeText(context, "Loading track...", Toast.LENGTH_SHORT).show()
 
-                    null // Trả về null để không thực hiện chuyển Fragment bên dưới
+                    // 2. Ép PlayerViewModel fetch lại bài hát mới nhất từ Firebase dựa trên ID
+                    // Việc này giúp lấy lại audioUrl hoặc previewUrl mới nhất (tránh lỗi 403 do link hết hạn)
+                    val songToPlay = Song(
+                        songId = item.id,
+                        title = item.title,
+                        artistName = item.subtitle,
+                        audioUrl = "" // Để trống để PlayerViewModel hiểu là cần phải fetch từ Repository
+                    )
+
+                    // 3. Gọi phát nhạc
+                    playerViewModel.playSong(songToPlay)
+
+                    null
                 }
             }
 
-            // 2. Nếu có Fragment (Artist/Playlist) thì mới thực hiện chuyển màn hình
             fragment?.let { targetFragment ->
                 parentFragmentManager.beginTransaction()
-//                    .setCustomAnimations(
-//                        R.anim.slide_in_right, // Thêm animation nếu có
-//                        R.anim.fade_out,
-//                        R.anim.fade_in,
-//                        R.anim.slide_out_right
-//                    )
                     .replace(R.id.frameLayout, targetFragment)
                     .addToBackStack("Library")
                     .commit()

@@ -62,4 +62,23 @@ class SongRepository(
     suspend fun deleteSong(songId: String): Boolean {
         return songRemoteDataSource.deleteSong(songId)
     }
+
+    suspend fun getDeezerGenres(): List<com.example.doancuoikymobile.ui.home.Genre> {
+        return try {
+            val response = deezerApi.getGenres()
+            // Lọc bỏ genre "All" thường có ID là 0
+            response.data.filter { it.id != "0" }.map {
+                com.example.doancuoikymobile.ui.home.Genre(it.id, it.name)
+            }
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun getNewReleasesFromDeezer(): List<Song> {
+        return try {
+            // Lấy album mới, sau đó lấy track đầu tiên hoặc map album thành "Song" giả lập
+            // Cách đơn giản nhất cho Home: Lấy nhạc đang trending (Chart) vì nó có sẵn track
+            val response = deezerApi.searchTracks("top", 20)
+            response.data.map { it.toSong() }
+        } catch (e: Exception) { emptyList() }
+    }
 }

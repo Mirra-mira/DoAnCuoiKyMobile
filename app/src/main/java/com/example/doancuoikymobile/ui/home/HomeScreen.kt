@@ -13,7 +13,9 @@ fun HomeScreen(
     sections: List<HomeSection>,
     modifier: Modifier = Modifier,
     onSongClick: (Song) -> Unit = {},
-    onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> }
+    onPlaylistClick: (title: String, subtitle: String) -> Unit = { _, _ -> },
+    // 1. Thêm tham số callback cho Genre ở đây
+    onGenreClick: (Genre) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -24,8 +26,11 @@ fun HomeScreen(
                 is HomeSection.Genres -> {
                     item {
                         GenresSection(
+                            // Lưu ý: Đảm bảo trong HomeSection.kt,
+                            // class Genres có thuộc tính là 'items' hoặc 'genres'
                             genres = section.items,
-                            onGenreClick = {  }
+                            // 2. Truyền tham số nhận được từ HomeScreen xuống GenresSection
+                            onGenreClick = onGenreClick
                         )
                     }
                 }

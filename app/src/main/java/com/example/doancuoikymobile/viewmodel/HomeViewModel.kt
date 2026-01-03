@@ -28,31 +28,43 @@ class HomeViewModel(
 
     private fun loadHomeData() {
         viewModelScope.launch {
+
             val currentUser = authRepository.getCurrentUser()
             val userId = currentUser?.uid
 
+            // 🔹 Lấy dữ liệu Deezer song song (không phải Flow)
+            val genres = songRepository.getDeezerGenres()
+            val newReleases = songRepository.getNewReleasesFromDeezer()
+
             combine(
-                songRepository.getAllSongs(),
-                if (userId != null) recentlyPlayedRepository.watchUserRecent(userId, 10) else flowOf(emptyList())
-            ) { songs, recentList ->
+                songRepository.getAllSongs(), // Firebase songs
+                if (userId != null)
+                    recentlyPlayedRepository.watchUserRecent(userId, 10)
+                else
+                    flowOf(emptyList())
+            ) { firebaseSongs, recentList ->
+
                 val homeSections = mutableListOf<HomeSection>()
 
-                homeSections.add(HomeSection.Genres(listOf(
-                    Genre("1", "V-Pop"),
-                    Genre("2", "Nhạc Trẻ"),
-                    Genre("3", "Ballad"),
-                    Genre("4", "Rap Việt"),
-                    Genre("5", "EDM"),
-                    Genre("6", "Acoustic")
-                )))
+                /* =========================
+                 * 1. THỂ LOẠI (DEEZER)
+                 * ========================= */
+                if (genres.isNotEmpty()) {
+                    homeSections.add(
+                        HomeSection.Genres(genres)
+                    )
+                }
 
+                /* =========================
+                 * 2. NGHE GẦN ĐÂY
+                 * ========================= */
                 if (recentList.isNotEmpty() && userId != null) {
                     val recentSongs = recentList.mapNotNull { recent ->
-                        songs.find { it.songId == recent.songId }?.let { song ->
+                        firebaseSongs.find { it.songId == recent.songId }?.let { song ->
                             RecentlyPlayedItem(
                                 id = song.songId,
                                 title = song.title,
-                                subtitle = "",
+                                subtitle = song.artistName ?: "",
                                 imageUrl = song.coverUrl,
                                 type = ContentType.SONG,
                                 playedAt = recent.playedAt,
@@ -60,27 +72,41 @@ class HomeViewModel(
                             )
                         }
                     }
+
                     if (recentSongs.isNotEmpty()) {
-                        homeSections.add(HomeSection.RecentlyPlayed(recentSongs))
+                        homeSections.add(
+                            HomeSection.RecentlyPlayed(recentSongs)
+                        )
                     }
                 }
 
-                if (songs.isNotEmpty()) {
-                    val songCards = songs.map { song ->
+                /* =========================
+                 * 3. MỚI PHÁT HÀNH (DEEZER)
+                 * ========================= */
+                if (newReleases.isNotEmpty()) {
+                    val songCards = newReleases.map { song ->
                         ContentCard(
                             id = song.songId,
                             title = song.title,
-                            subtitle = "Bài hát",
+                            subtitle = song.artistName ?: "Artist",
                             imageUrl = song.coverUrl,
                             type = ContentType.SONG,
                             song = song
                         )
                     }
-                    homeSections.add(HomeSection.CustomSection("Phát hành mới", songCards))
+
+                    homeSections.add(
+                        HomeSection.CustomSection(
+                            title = "Mới phát hành",
+                            items = songCards
+                        )
+                    )
                 }
 
-                _sections.value = homeSections
-            }.collect { }
+                homeSections
+            }.collect { sections ->
+                _sections.value = sections
+            }
         }
     }
 }

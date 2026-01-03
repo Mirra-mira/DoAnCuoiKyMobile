@@ -15,6 +15,7 @@ import com.example.doancuoikymobile.R
 import com.example.doancuoikymobile.ui.theme.DoAnCuoiKyMobileTheme
 import com.example.doancuoikymobile.utils.NavigationHelper
 import com.example.doancuoikymobile.viewmodel.HomeViewModel
+import com.example.doancuoikymobile.ui.search.SearchFragment
 
 class HomeFragment : Fragment() {
 
@@ -41,6 +42,19 @@ class HomeFragment : Fragment() {
                         },
                         onPlaylistClick = { title, subtitle ->
                             NavigationHelper.openPlaylist(this@HomeFragment, title, subtitle)
+                        },
+                        onGenreClick = { genre ->
+                            // Cách 1: Mở trang Search và tự điền tên thể loại vào để tìm kiếm
+                            // Cách 2: Bạn tạo 1 GenreDetailFragment và dùng NavigationHelper để mở
+                            // Tạm thời tôi hướng dẫn bạn mở Search:
+                            val searchFragment = SearchFragment()
+                            val bundle = Bundle().apply { putString("GENRE_NAME", genre.name) }
+                            searchFragment.arguments = bundle
+
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.frameLayout, searchFragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
                     )
                 }

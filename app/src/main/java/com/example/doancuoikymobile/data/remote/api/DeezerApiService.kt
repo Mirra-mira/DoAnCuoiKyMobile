@@ -91,6 +91,17 @@ interface DeezerApiService {
         @Path("id") id: Long,
         @Query("limit") limit: Int = 100
     ): DeezerSearchResponse
+
+    @GET("genre")
+    suspend fun getGenres(): DeezerGenreResponse
+
+    /**
+     * Lấy các bài hát mới phát hành (Sử dụng biểu đồ Chart hoặc Editorial)
+     */
+    @GET("editorial/0/releases")
+    suspend fun getNewReleases(
+        @Query("limit") limit: Int = 20
+    ): DeezerNewReleasesResponse
 }
 
 // ==================== RESPONSE DTOs ====================
@@ -216,3 +227,13 @@ data class DeezerPlaylistResponse(
     val nb_tracks: Int = 0,
     val creator: DeezerUser? = null
 )
+
+data class DeezerGenreResponse(val data: List<DeezerGenre>)
+data class DeezerGenre(
+    val id: String,
+    val name: String,
+    val picture: String?,
+    val picture_medium: String?
+)
+
+data class DeezerNewReleasesResponse(val data: List<DeezerAlbum>) // Deezer trả về danh sách Album mới

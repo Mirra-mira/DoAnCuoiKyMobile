@@ -13,17 +13,17 @@ class MediaPlayerService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // 1. Khởi tạo PlayerManager
+        // Khởi tạo PlayerManager
         PlayerManager.init(this)
 
-        // 2. Lấy ExoPlayer từ PlayerManager (Sửa tên hàm cho khớp)
-        val player = PlayerManager.getPlayer()
+        // Lấy ExoPlayer từ PlayerManager
+        val player = PlayerManager.player ?: throw IllegalStateException("Player chưa được khởi tạo!")
 
-        // 3. Khởi tạo MediaSession
+        // Khởi tạo MediaSession
         mediaSession = MediaSession.Builder(this, player)
             .build()
 
-        // 4. Hiển thị thông báo (Notification)
+        // Hiển thị thông báo (Notification)
         val playerNotification = PlayerNotification(this)
         startForeground(Constants.NOTIFICATION_ID, playerNotification.createNotification())
     }
@@ -35,8 +35,6 @@ class MediaPlayerService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         // Media3 dùng token để Activity/Fragment có thể điều khiển nhạc qua MediaController
         return mediaSession?.token?.let {
-            // Nếu bạn dùng MediaSessionService thì return super.onBind(intent)
-            // Còn nếu dùng Service thông thường, onBind thường trả về null hoặc Binder riêng
             null
         }
     }

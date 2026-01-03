@@ -60,12 +60,20 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) replaceFragment(HomeFragment())
         setupBottomNav()
     }
+    private fun updateMiniPlayerVisibility() {
+        val currentSong = playerViewModel.currentSong.value
+        if (currentSong != null && !isPlayerScreen) {
+            showMiniPlayer(currentSong)
+        } else {
+            miniPlayerBar.visibility = View.GONE
+        }
+    }
+
     private fun observePlayer() {
         lifecycleScope.launch {
             playerViewModel.currentSong.collect { song ->
-                if (song != null && !isPlayerScreen) {
-                    showMiniPlayer(song)
-                }
+                // Mỗi khi bài hát thay đổi, kiểm tra để hiển thị
+                updateMiniPlayerVisibility()
             }
         }
 
@@ -108,13 +116,15 @@ class MainActivity : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment) {
         isPlayerScreen = fragment is PlayerFragment
 
-        if (isPlayerScreen) {
-            miniPlayerBar.visibility = View.GONE
-        }
+        // Sau khi thay đổi isPlayerScreen, phải cập nhật lại ẩn hiện MiniPlayer
+        updateMiniPlayerVisibility()
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
-            .addToBackStack(null)
+            .apply {
+                // Chỉ add to backstack nếu không phải là các trang chính của BottomNav
+                if (isPlayerScreen) addToBackStack(null)
+            }
             .commit()
     }
 }

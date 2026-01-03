@@ -6,61 +6,50 @@ import android.content.Context
 import com.example.doancuoikymobile.model.Song
 
 object PlayerManager {
-    private var exoPlayer: ExoPlayer? = null
+    // Đổi từ private var thành public var để ViewModel có thể addListener
+    var player: ExoPlayer? = null
+        private set
+
     private var currentSong: Song? = null
     private var context: Context? = null
 
-    private val playlist = mutableListOf<Song>()
-    private var currentIndex = -1
-
     fun init(context: Context) {
-        if (exoPlayer == null) {
+        if (player == null) {
             this.context = context
-            exoPlayer = ExoPlayer.Builder(context).build().apply {
+            player = ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
             }
         }
     }
 
-    fun getPlayer(): ExoPlayer = exoPlayer ?: throw IllegalStateException("Player not initialized")
-
+    // Cập nhật lại các hàm để dùng biến 'player' mới
     fun playSong(song: Song) {
-        if (exoPlayer == null && context != null) {
-            init(context!!)
-        }
-        
-        currentSong = song
+        if (player == null && context != null) init(context!!)
 
-        val urlToPlay = when {
-            song.audioUrl.isNotEmpty() -> song.audioUrl
-            !song.previewUrl.isNullOrEmpty() -> song.previewUrl
-            else -> ""
-        }
+        currentSong = song
+        val urlToPlay = if (song.audioUrl.isNotEmpty()) song.audioUrl else song.previewUrl ?: ""
 
         if (urlToPlay.isEmpty()) return
 
         val mediaItem = MediaItem.fromUri(urlToPlay)
-        exoPlayer?.apply {
+        player?.apply {
             setMediaItem(mediaItem)
             prepare()
             play()
         }
     }
 
-    fun play() = exoPlayer?.play()
-    fun pause() = exoPlayer?.pause()
-    fun stop() = exoPlayer?.stop()
-
-    fun isPlaying() = exoPlayer?.isPlaying ?: false
+    fun play() = player?.play()
+    fun pause() = player?.pause()
+    fun isPlaying() = player?.isPlaying ?: false
     fun getCurrentSong() = currentSong
-
-    fun getDuration() = exoPlayer?.duration ?: 0L
-    fun getCurrentPosition() = exoPlayer?.currentPosition ?: 0L
-    fun seekTo(position: Long) = exoPlayer?.seekTo(position)
+    fun getDuration() = player?.duration ?: 0L
+    fun getCurrentPosition() = player?.currentPosition ?: 0L
+    fun seekTo(position: Long) = player?.seekTo(position)
 
     fun release() {
-        exoPlayer?.release()
-        exoPlayer = null
+        player?.release()
+        player = null
         currentSong = null
     }
 }

@@ -156,4 +156,9 @@ dependencies {
 
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
+    // Media3 - Phiên bản mới nhất thay thế cho ExoPlayer cũ
+    val media3_version = "1.2.0" // Hoặc bản mới nhất
+    implementation("androidx.media3:media3-exoplayer:$media3_version")
+    implementation("androidx.media3:media3-common:$media3_version")
+
 }

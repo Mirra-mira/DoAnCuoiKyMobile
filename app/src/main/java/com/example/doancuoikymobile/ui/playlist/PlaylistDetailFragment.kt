@@ -22,6 +22,8 @@ import com.example.doancuoikymobile.ui.player.PlayerFragment
 import com.example.doancuoikymobile.viewmodel.PlaylistDetailViewModel
 import com.example.doancuoikymobile.ui.dialog.ChoosePlaylistDialog
 import com.example.doancuoikymobile.utils.EmptyStateHelper
+import com.example.doancuoikymobile.viewmodel.PlayerViewModel
+import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.combine
@@ -35,6 +37,7 @@ class PlaylistDetailFragment : Fragment() {
     private var playlistId: String? = null
     private var playlistTitle: String? = null
     private val viewModel: PlaylistDetailViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by activityViewModels()
     private var displayList = ArrayList<LibraryModel>()
     private lateinit var libraryAdapter: LibraryAdapter
     private lateinit var emptyStateView: View
@@ -72,21 +75,20 @@ class PlaylistDetailFragment : Fragment() {
         }
 
         val songListHandler: (LibraryModel) -> Unit = { model ->
-            val songToPlay = viewModel.songs.value.find { it.songId == model.id }
+            val songList = viewModel.songs.value
+            val songToPlay = songList.find { it.songId == model.id }
+
             songToPlay?.let { song ->
-                PlayerManager.playSong(song)
-                val songList = viewModel.songs.value
+                // CẬP NHẬT: Gửi danh sách vào PlayerViewModel
                 val startIndex = songList.indexOfFirst { it.songId == song.songId }
+                playerViewModel.setPlaylist(songList, startIndex)
 
                 parentFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.frameLayout,
-                        PlayerFragment.newInstance(
-                            song = song,
-                            playlist = songList,
-                            startIndex = startIndex
-                        )
-                    )
+                    .replace(R.id.frameLayout, PlayerFragment.newInstance(
+                        song = song,
+                        playlist = songList,
+                        startIndex = startIndex
+                    ))
                     .addToBackStack("PlaylistDetail")
                     .commit()
             }
@@ -123,16 +125,13 @@ class PlaylistDetailFragment : Fragment() {
         btnPlayBig.setOnClickListener {
             val songs = viewModel.songs.value
             if (songs.isNotEmpty()) {
-                PlayerManager.playSong(songs[0])
+                playerViewModel.setPlaylist(songs, 0)
                 parentFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.frameLayout,
-                        PlayerFragment.newInstance(
-                            song = songs[0],
-                            playlist = songs,
-                            startIndex = 0
-                        )
-                    )
+                    .replace(R.id.frameLayout, PlayerFragment.newInstance(
+                        song = songs[0],
+                        playlist = songs,
+                        startIndex = 0
+                    ))
                     .addToBackStack("PlaylistDetail")
                     .commit()
             }

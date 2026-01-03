@@ -22,6 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import androidx.media3.common.Player
 
 class PlayerViewModel(
     private val artistRepository: ArtistRepository = ArtistRepository(ArtistRemoteDataSource()),
@@ -67,8 +68,17 @@ class PlayerViewModel(
     val userPlaylists = _userPlaylists.asStateFlow()
 
     init {
+        loadUserPlaylists()
         observePlayerState()
-        loadUserPlaylists() // Load danh sách playlist ngay khi init
+
+        // Bây giờ bạn có thể gọi .player vì nó đã là public
+        PlayerManager.player?.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    playNext() // Tự động chuyển bài khi kết thúc
+                }
+            }
+        })
     }
 
     // Hàm load danh sách playlist để hiển thị trong Dialog
@@ -93,27 +103,20 @@ class PlayerViewModel(
     private fun observePlayerState() {
         viewModelScope.launch {
             while (true) {
-                val song = PlayerManager.getCurrentSong()
+                val songFromServer = PlayerManager.getCurrentSong()
 
-                if (song?.songId != _currentSong.value?.songId) {
-                    _currentSong.value = song
-                    _artistName.value = song?.artistName ?: ""
-                    song?.let { checkLikeStatus(it.songId) }
+                // CHỈ cập nhật nếu songFromServer thực sự khác null
+                // Tránh việc PlayerManager trả về null làm mất MiniPlayer
+                if (songFromServer != null && songFromServer.songId != _currentSong.value?.songId) {
+                    _currentSong.value = songFromServer
+                    _artistName.value = songFromServer.artistName ?: ""
+                    checkLikeStatus(songFromServer.songId)
                 }
 
                 _isPlaying.value = PlayerManager.isPlaying()
                 _progress.value = PlayerManager.getCurrentPosition()
                 _duration.value = PlayerManager.getDuration()
 
-                if (_duration.value > 0 &&
-                    _progress.value >= _duration.value - 500 &&
-                    _isPlaying.value
-                ) {
-                    when (_repeatMode.value) {
-                        1 -> playNext()
-                        2 -> _currentSong.value?.let { playSong(it) }
-                    }
-                }
                 delay(1000)
             }
         }
@@ -154,13 +157,21 @@ class PlayerViewModel(
     fun playNext() {
         if (playlist.isEmpty()) return
 
+        // Tìm vị trí hiện tại nếu index bị sai lệch
+        if (currentPlaylistIndex == -1) {
+            currentPlaylistIndex = playlist.indexOfFirst { it.songId == _currentSong.value?.songId }
+        }
+
         currentPlaylistIndex = if (_isShuffle.value && playlist.size > 1) {
-            (playlist.indices - currentPlaylistIndex).random()
+            // Random một vị trí mới khác vị trí hiện tại
+            (playlist.indices).filter { it != currentPlaylistIndex }.random()
         } else {
             (currentPlaylistIndex + 1) % playlist.size
         }
 
-        playSong(playlist[currentPlaylistIndex])
+        if (currentPlaylistIndex in playlist.indices) {
+            playSong(playlist[currentPlaylistIndex])
+        }
     }
 
     fun playPrevious() {

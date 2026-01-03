@@ -31,6 +31,7 @@ class PlayerFragment : Fragment() {
     private lateinit var tvCurrentTime: TextView
     private lateinit var tvTotalTime: TextView
     private lateinit var imgPlayer: ImageView
+    private lateinit var btnLike: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +50,7 @@ class PlayerFragment : Fragment() {
         tvCurrentTime = view.findViewById(R.id.tvCurrentTime)
         tvTotalTime = view.findViewById(R.id.tvTotalTime)
         imgPlayer = view.findViewById(R.id.imgPlayer)
+        btnLike = view.findViewById(R.id.btnLikeSong)
 
         view.findViewById<ImageView>(R.id.btnClosePlayer)?.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -86,6 +88,10 @@ class PlayerFragment : Fragment() {
 
         btnRepeat.setOnClickListener {
             viewModel.toggleRepeat()
+        }
+
+        btnLike.setOnClickListener {
+            viewModel.toggleLikeCurrentSong()
         }
 
         return view
@@ -139,6 +145,20 @@ class PlayerFragment : Fragment() {
             launch {
                 viewModel.repeatMode.collect { mode ->
                     btnRepeat.alpha = if (mode > 0) 1f else 0.5f
+                }
+            }
+
+            launch {
+                viewModel.isCurrentSongLiked.collect { isLiked ->
+                    if (isLiked) {
+                        btnLike.setImageResource(R.drawable.ic_heart_filled)
+                        btnLike.setColorFilter(
+                            resources.getColor(R.color.red, null)
+                        )
+                    } else {
+                        btnLike.setImageResource(R.drawable.ic_heart_outline)
+                        btnLike.clearColorFilter()
+                    }
                 }
             }
         }

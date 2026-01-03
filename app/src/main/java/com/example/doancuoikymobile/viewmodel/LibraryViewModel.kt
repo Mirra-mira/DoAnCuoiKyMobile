@@ -153,4 +153,16 @@ class LibraryViewModel : ViewModel() {
             // watchUserPlaylists tự động phát sự kiện khi dữ liệu thay đổi
         }
     }
+
+    // Lấy danh sách playlist hiện tại (dạng list thường để dùng cho Dialog)
+    fun getCurrentPlaylists(): List<Playlist> {
+        return _playlists.value
+    }
+
+    // Thêm bài hát vào playlist đã chọn
+    fun addSongToPlaylist(playlistId: String, songId: String) {
+        viewModelScope.launch {
+            playlistRepo.addSongToPlaylist(playlistId, songId)
+        }
+    }
 }

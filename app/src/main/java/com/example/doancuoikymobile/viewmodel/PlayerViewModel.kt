@@ -11,6 +11,9 @@ import com.example.doancuoikymobile.repository.RecentlyPlayedRepository
 import com.example.doancuoikymobile.repository.SongRepository
 import com.example.doancuoikymobile.data.remote.firebase.ArtistRemoteDataSource
 import com.example.doancuoikymobile.data.remote.firebase.RecentlyPlayedDataSource
+import com.example.doancuoikymobile.repository.LikedSongRepository
+import com.example.doancuoikymobile.data.remote.firebase.LikedSongRemoteDataSource
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +23,16 @@ class PlayerViewModel(
     private val artistRepository: ArtistRepository = ArtistRepository(ArtistRemoteDataSource()),
     private val songRepository: SongRepository = SongRepository(),
     private val recentlyPlayedRepository: RecentlyPlayedRepository = RecentlyPlayedRepository(RecentlyPlayedDataSource()),
-    private val authRepository: AuthRepository = AuthRepository()
+    private val authRepository: AuthRepository = AuthRepository(),
+    private val likedSongRepository: LikedSongRepository = LikedSongRepository(LikedSongRemoteDataSource(FirebaseFirestore.getInstance()))
 ) : ViewModel() {
 
     private val _currentSong = MutableStateFlow<Song?>(null)
     val currentSong = _currentSong.asStateFlow()
+
+    // State theo dõi trạng thái Like của bài hát hiện tại
+    private val _isCurrentSongLiked = MutableStateFlow(false)
+    val isCurrentSongLiked = _isCurrentSongLiked.asStateFlow()
 
     private val _artistName = MutableStateFlow<String>("")
     val artistName = _artistName.asStateFlow()
@@ -41,7 +49,7 @@ class PlayerViewModel(
     private val _isShuffle = MutableStateFlow(false)
     val isShuffle = _isShuffle.asStateFlow()
 
-    private val _repeatMode = MutableStateFlow(0) // 0: no repeat, 1: repeat all, 2: repeat one
+    private val _repeatMode = MutableStateFlow(0)
     val repeatMode = _repeatMode.asStateFlow()
 
     private val playlist = mutableListOf<Song>()
@@ -55,25 +63,47 @@ class PlayerViewModel(
         viewModelScope.launch {
             while (true) {
                 val song = PlayerManager.getCurrentSong()
-                _currentSong.value = song
-                _artistName.value = song?.artistName ?: ""
+
+                if (song?.songId != _currentSong.value?.songId) {
+                    _currentSong.value = song
+                    _artistName.value = song?.artistName ?: ""
+                    song?.let { checkLikeStatus(it.songId) }
+                }
+
                 _isPlaying.value = PlayerManager.isPlaying()
                 _progress.value = PlayerManager.getCurrentPosition()
                 _duration.value = PlayerManager.getDuration()
 
-                // HANDLE REPEAT / NEXT WHEN SONG ENDS
                 if (_duration.value > 0 &&
                     _progress.value >= _duration.value - 500 &&
                     _isPlaying.value
                 ) {
                     when (_repeatMode.value) {
-                        1 -> playNext()                          // repeat all
-                        2 -> _currentSong.value?.let { playSong(it) } // repeat one
-                        else -> { /* no repeat */ }
+                        1 -> playNext()
+                        2 -> _currentSong.value?.let { playSong(it) }
                     }
                 }
-
                 delay(1000)
+            }
+        }
+    }
+
+    private fun checkLikeStatus(songId: String) {
+        val userId = authRepository.getCurrentUser()?.uid ?: return
+        viewModelScope.launch {
+            _isCurrentSongLiked.value = likedSongRepository.isLiked(userId, songId)
+        }
+    }
+
+    fun toggleLikeCurrentSong() {
+        val song = _currentSong.value ?: return
+        val userId = authRepository.getCurrentUser()?.uid ?: return
+
+        viewModelScope.launch {
+            val isCurrentlyLiked = _isCurrentSongLiked.value
+            val success = likedSongRepository.toggleLikeSong(userId, song.songId, isCurrentlyLiked)
+            if (success) {
+                _isCurrentSongLiked.value = !isCurrentlyLiked
             }
         }
     }
@@ -141,28 +171,23 @@ class PlayerViewModel(
                     playedSong = firebaseSong
                 }
             }
-            
+
             val urlToPlay = when {
                 playedSong.audioUrl.isNotEmpty() -> playedSong.audioUrl
                 !playedSong.previewUrl.isNullOrEmpty() -> playedSong.previewUrl
                 else -> null
             }
-            
+
             if (urlToPlay != null) {
                 PlayerManager.playSong(playedSong)
                 _currentSong.value = playedSong
+                // Cập nhật trạng thái Like ngay khi bắt đầu bài hát mới
+                checkLikeStatus(playedSong.songId)
             }
-            
-            songRepository.saveSongIfNotExists(song)
-            
+
             val currentUser = authRepository.getCurrentUser()
             if (currentUser != null) {
-                val recentlyPlayed = RecentlyPlayed(
-                    userId = currentUser.uid,
-                    songId = song.songId,
-                    playedAt = System.currentTimeMillis()
-                )
-                recentlyPlayedRepository.addPlayed(recentlyPlayed)
+                recentlyPlayedRepository.addPlayed(RecentlyPlayed(currentUser.uid, song.songId, System.currentTimeMillis()))
             }
             
             song.mainArtistId?.let { artistId ->

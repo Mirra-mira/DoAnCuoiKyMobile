@@ -5,6 +5,7 @@
         <color name="moss_ow">#FF006614</color>
         <color name="rose_ow">#FFB30000</color>
         <color name="owl_ow">#FF595959</color>
+        <color name="red">#FF0000</color>
 
         // dark mode
         <color name="lithium">#FFF7F7F7</color>

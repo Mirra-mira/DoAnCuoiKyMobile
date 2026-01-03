@@ -57,7 +57,6 @@ class LibraryFragment : Fragment() {
 
     private var displayList = ArrayList<LibraryModel>()
 
-    // Sử dụng ViewModel để quản lý dữ liệu từ Firestore
     private val viewModel: LibraryViewModel by viewModels()
 
     override fun onCreateView(
@@ -73,10 +72,10 @@ class LibraryFragment : Fragment() {
         btnSongs = view.findViewById(R.id.btnSongs)
         btnSort = view.findViewById(R.id.btnSort)
         tvSortLabel = view.findViewById(R.id.tvSortLabel)
-        btnCreatePlaylist = view.findViewById(R.id.btnCreatePlaylist)  // Nút (+) tạo playlist mới
+        btnCreatePlaylist = view.findViewById(R.id.btnCreatePlaylist)
         emptyStateView = view.findViewById(R.id.emptyStateLibrary)
 
-        // 1. Setup Click Handler: Chuyển đến PlaylistDetailFragment khi click vào playlist
+        // Setup Click Handler: Chuyển đến PlaylistDetailFragment khi click vào playlist
         val itemClickHandler: (LibraryModel) -> Unit = { item ->
             val detailFragment = PlaylistDetailFragment.newInstance(item.id, item.title)
             parentFragmentManager.beginTransaction()
@@ -97,7 +96,6 @@ class LibraryFragment : Fragment() {
             }
         }
 
-        // 2. Init Adapter
         libraryAdapter = LibraryAdapter(
             displayList,
             onItemClick = itemClickHandler,

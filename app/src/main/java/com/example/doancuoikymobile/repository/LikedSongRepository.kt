@@ -2,7 +2,6 @@ package com.example.doancuoikymobile.repository
 
 import com.example.doancuoikymobile.data.remote.firebase.LikedSongRemoteDataSource
 import com.example.doancuoikymobile.model.LikedSong
-import com.example.doancuoikymobile.model.Song
 import kotlinx.coroutines.flow.Flow
 
 class LikedSongRepository(private val remote: LikedSongRemoteDataSource) {
@@ -26,6 +25,13 @@ class LikedSongRepository(private val remote: LikedSongRemoteDataSource) {
     }
 
     /**
+     * Check if a song is liked
+     */
+    suspend fun isLiked(userId: String, songId: String): Boolean {
+        return remote.isLikedBySong(userId, songId)
+    }
+
+    /**
      * Like a song
      */
     suspend fun likeSong(userId: String, songId: String): Boolean {
@@ -37,13 +43,6 @@ class LikedSongRepository(private val remote: LikedSongRemoteDataSource) {
      */
     suspend fun unlikeSong(userId: String, songId: String): Boolean {
         return remote.removeLikedSong(userId, songId)
-    }
-
-    /**
-     * Check if a song is liked
-     */
-    suspend fun isLiked(userId: String, songId: String): Boolean {
-        return remote.isLikedBySong(userId, songId)
     }
 
     /**

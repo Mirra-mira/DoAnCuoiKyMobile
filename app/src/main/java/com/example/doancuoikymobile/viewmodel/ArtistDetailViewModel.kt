@@ -82,10 +82,7 @@ class ArtistDetailViewModel : ViewModel() {
     fun toggleFollow(userId: String, artist: Artist) {
         viewModelScope.launch {
             try {
-                // First, save artist to Firestore if not exists
                 artistRepo.upsertArtist(artist)
-                
-                // Then toggle follow status
                 val isCurrentlyFollowed = _isFollowed.value
                 followedArtistRepo.toggleFollowArtist(userId, artist.artistId, isCurrentlyFollowed)
                 _isFollowed.value = !isCurrentlyFollowed

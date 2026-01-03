@@ -44,17 +44,15 @@ class HomeFragment : Fragment() {
                             NavigationHelper.openPlaylist(this@HomeFragment, title, subtitle)
                         },
                         onGenreClick = { genre ->
-                            // Cách 1: Mở trang Search và tự điền tên thể loại vào để tìm kiếm
-                            // Cách 2: Bạn tạo 1 GenreDetailFragment và dùng NavigationHelper để mở
-                            // Tạm thời tôi hướng dẫn bạn mở Search:
-                            val searchFragment = SearchFragment()
-                            val bundle = Bundle().apply { putString("GENRE_NAME", genre.name) }
-                            searchFragment.arguments = bundle
-
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.frameLayout, searchFragment)
-                                .addToBackStack(null)
-                                .commit()
+                            // KHI CLICK VÀO CARD (TOP NHẠC):
+                            // Mở PlaylistDetail và truyền ID playlist của Deezer qua subtitle hoặc tham số phù hợp
+                            // Trong code của bạn, NavigationHelper.openPlaylist đang nhận (title, subtitle)
+                            // Ta sẽ dùng subtitle để chứa ID playlist
+                            NavigationHelper.openPlaylist(
+                                this@HomeFragment,
+                                genre.name,      // Tên hiển thị: "Top Việt Nam"
+                                genre.id         // ID để fetch nhạc: "1313621735"
+                            )
                         }
                     )
                 }

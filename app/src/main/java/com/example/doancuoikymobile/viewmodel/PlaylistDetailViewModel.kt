@@ -21,7 +21,6 @@ class PlaylistDetailViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val deezerApi: DeezerApiService = DeezerRetrofitClient.deezerApiService
 
-    // Khởi tạo Repository với DataSource đã sửa
     private val playlistRepo = PlaylistRepository(
         PlaylistRemoteDataSource(firestore),
         PlaylistSongDataSource(firestore)

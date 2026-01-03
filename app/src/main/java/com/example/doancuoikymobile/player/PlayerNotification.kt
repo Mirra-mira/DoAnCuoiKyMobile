@@ -7,10 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.RemoteViews
-import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.example.doancuoikymobile.R
@@ -68,10 +65,6 @@ class PlayerNotification(private val context: Context) {
             .build()
     }
 
-    fun updateNotification(notification: Notification) {
-        notificationManager.notify(Constants.NOTIFICATION_ID, notification)
-    }
-
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -84,5 +77,9 @@ class PlayerNotification(private val context: Context) {
             }
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    fun updateNotification(notification: Notification) {
+        notificationManager.notify(Constants.NOTIFICATION_ID, notification)
     }
 }

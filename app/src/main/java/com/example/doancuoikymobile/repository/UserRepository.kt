@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class UserRepository(
     private val remote: UserRemoteDataSource
 ) {
-    // Gọi hàm này khi khởi động App (ví dụ trong SplashActivity hoặc Application class)
     suspend fun initializeAppSystem() {
         remote.createAdminIfNotExist()
     }

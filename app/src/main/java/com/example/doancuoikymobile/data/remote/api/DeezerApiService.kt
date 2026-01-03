@@ -237,3 +237,9 @@ data class DeezerGenre(
 )
 
 data class DeezerNewReleasesResponse(val data: List<DeezerAlbum>) // Deezer trả về danh sách Album mới
+
+data class DeezerPlaylistTracksResponse(
+    val data: List<DeezerTrack> = emptyList(),
+    val total: Int = 0,
+    val checksum: String? = null
+)

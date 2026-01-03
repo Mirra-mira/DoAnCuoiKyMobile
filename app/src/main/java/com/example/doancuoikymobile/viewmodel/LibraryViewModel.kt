@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class LibraryViewModel : ViewModel() {
-    // Khởi tạo các Repository cần thiết
     private val firestore = FirebaseFirestore.getInstance()
     private val playlistRepo = PlaylistRepository(
         PlaylistRemoteDataSource(firestore),
@@ -71,7 +70,6 @@ class LibraryViewModel : ViewModel() {
     private var libraryDataLoadedForUser: String? = null  // Cache để tránh load lặp
     private var currentUserId: String? = null
 
-    // Hàm lấy dữ liệu từ Firestore dựa trên UserId [cite: 1203, 1116]
     fun loadLibraryData(userId: String) {
         if (libraryDataLoadedForUser == userId) return
         libraryDataLoadedForUser = userId

@@ -28,36 +28,25 @@ class HomeViewModel(
 
     private fun loadHomeData() {
         viewModelScope.launch {
-
             val currentUser = authRepository.getCurrentUser()
             val userId = currentUser?.uid
 
-            // 🔹 Lấy dữ liệu Deezer song song (không phải Flow)
-            val genres = songRepository.getDeezerGenres()
+            val topPlaylists = songRepository.getDeezerGenres()
             val newReleases = songRepository.getNewReleasesFromDeezer()
 
             combine(
-                songRepository.getAllSongs(), // Firebase songs
-                if (userId != null)
-                    recentlyPlayedRepository.watchUserRecent(userId, 10)
-                else
-                    flowOf(emptyList())
+                songRepository.getAllSongs(),
+                if (userId != null) recentlyPlayedRepository.watchUserRecent(userId, 10) else flowOf(emptyList())
             ) { firebaseSongs, recentList ->
 
                 val homeSections = mutableListOf<HomeSection>()
 
-                /* =========================
-                 * 1. THỂ LOẠI (DEEZER)
-                 * ========================= */
-                if (genres.isNotEmpty()) {
-                    homeSections.add(
-                        HomeSection.Genres(genres)
-                    )
+                // BẢNG XẾP HẠNG
+                if (topPlaylists.isNotEmpty()) {
+                    homeSections.add(HomeSection.Genres(topPlaylists))
                 }
 
-                /* =========================
-                 * 2. NGHE GẦN ĐÂY
-                 * ========================= */
+                // NGHE GẦN ĐÂY
                 if (recentList.isNotEmpty() && userId != null) {
                     val recentSongs = recentList.mapNotNull { recent ->
                         firebaseSongs.find { it.songId == recent.songId }?.let { song ->
@@ -72,35 +61,22 @@ class HomeViewModel(
                             )
                         }
                     }
-
-                    if (recentSongs.isNotEmpty()) {
-                        homeSections.add(
-                            HomeSection.RecentlyPlayed(recentSongs)
-                        )
-                    }
+                    if (recentSongs.isNotEmpty()) homeSections.add(HomeSection.RecentlyPlayed(recentSongs))
                 }
 
-                /* =========================
-                 * 3. MỚI PHÁT HÀNH (DEEZER)
-                 * ========================= */
+                // PHÁT HÀNH MỚI (Lấy từ Deezer)
                 if (newReleases.isNotEmpty()) {
                     val songCards = newReleases.map { song ->
                         ContentCard(
                             id = song.songId,
                             title = song.title,
-                            subtitle = song.artistName ?: "Artist",
+                            subtitle = song.artistName ?: "Deezer Music",
                             imageUrl = song.coverUrl,
                             type = ContentType.SONG,
                             song = song
                         )
                     }
-
-                    homeSections.add(
-                        HomeSection.CustomSection(
-                            title = "Mới phát hành",
-                            items = songCards
-                        )
-                    )
+                    homeSections.add(HomeSection.CustomSection("Newly released", songCards))
                 }
 
                 homeSections

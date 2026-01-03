@@ -25,6 +25,13 @@ class FollowedArtistRepository(private val remote: FollowedArtistRemoteDataSourc
     }
 
     /**
+     * Check if user follows an artist
+     */
+    suspend fun isFollowed(userId: String, artistId: String): Boolean {
+        return remote.isFollowedByUser(userId, artistId)
+    }
+
+    /**
      * Follow an artist
      */
     suspend fun followArtist(userId: String, artistId: String): Boolean {
@@ -36,13 +43,6 @@ class FollowedArtistRepository(private val remote: FollowedArtistRemoteDataSourc
      */
     suspend fun unfollowArtist(userId: String, artistId: String): Boolean {
         return remote.unfollowArtist(userId, artistId)
-    }
-
-    /**
-     * Check if user follows an artist
-     */
-    suspend fun isFollowed(userId: String, artistId: String): Boolean {
-        return remote.isFollowedByUser(userId, artistId)
     }
 
     /**

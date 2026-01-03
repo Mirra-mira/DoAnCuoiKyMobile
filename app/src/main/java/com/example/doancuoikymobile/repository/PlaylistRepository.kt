@@ -22,12 +22,6 @@ class PlaylistRepository(
     private val playlistRemote: PlaylistRemoteDataSource,
     private val playlistSongRemote: PlaylistSongDataSource
 ) {
-    
-    /**
-     * Get a single playlist by ID.
-     */
-    suspend fun getPlaylistOnce(id: String): Playlist? = playlistRemote.getPlaylistOnce(id)
-
     /**
      * Stream all playlists for a user (real-time, ordered by createdAt descending).
      */
@@ -40,11 +34,6 @@ class PlaylistRepository(
     suspend fun upsertPlaylist(playlist: Playlist) = playlistRemote.upsertPlaylist(playlist)
 
     /**
-     * Delete a playlist and all its songs.
-     */
-    suspend fun deletePlaylist(id: String) = playlistRemote.deletePlaylist(id)
-
-    /**
      * Add a song to a playlist.
      * @param playlistId The playlist to add to
      * @param songId The song to add
@@ -54,22 +43,10 @@ class PlaylistRepository(
         playlistSongRemote.addSongToPlaylist(playlistId, songId, orderIndex)
 
     /**
-     * Remove a song from a playlist.
-     */
-    suspend fun removeSongFromPlaylist(playlistId: String, songId: String) =
-        playlistSongRemote.removeSongFromPlaylist(playlistId, songId)
-
-    /**
      * Stream all songs in a playlist (real-time, ordered).
      */
     fun watchPlaylistSongs(playlistId: String): Flow<List<PlaylistSong>> =
         playlistSongRemote.watchPlaylistSongs(playlistId)
-
-    /**
-     * Reorder a song in a playlist.
-     */
-    suspend fun updateSongOrderInPlaylist(playlistId: String, songId: String, newOrderIndex: Int) =
-        playlistSongRemote.updateSongOrderInPlaylist(playlistId, songId, newOrderIndex)
 
     /**
      * Check if a song is in a playlist.
@@ -81,5 +58,27 @@ class PlaylistRepository(
         val userId = "CURRENT_USER_ID"  // TODO: replace bằng userId thật
         return playlistRemote.getUserPlaylistsOnce(userId)
     }
+
+    /**
+     * Get a single playlist by ID.
+     */
+    suspend fun getPlaylistOnce(id: String): Playlist? = playlistRemote.getPlaylistOnce(id)
+
+    /**
+     * Remove a song from a playlist.
+     */
+    suspend fun removeSongFromPlaylist(playlistId: String, songId: String) =
+        playlistSongRemote.removeSongFromPlaylist(playlistId, songId)
+
+    /**
+     * Delete a playlist and all its songs.
+     */
+    suspend fun deletePlaylist(id: String) = playlistRemote.deletePlaylist(id)
+
+    /**
+     * Reorder a song in a playlist.
+     */
+    suspend fun updateSongOrderInPlaylist(playlistId: String, songId: String, newOrderIndex: Int) =
+        playlistSongRemote.updateSongOrderInPlaylist(playlistId, songId, newOrderIndex)
 }
 

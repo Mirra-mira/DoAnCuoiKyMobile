@@ -19,11 +19,9 @@ import com.example.doancuoikymobile.utils.Logger
  */
 fun MediaPlayer.playSong(song: Song) {
     try {
-        // Priority 1: audioUrl (full MP3)
         val urlToPlay = if (song.audioUrl.isNotEmpty()) {
             song.audioUrl
         } else {
-            // Priority 2: previewUrl (Deezer 30s preview)
             song.previewUrl ?: ""
         }
 

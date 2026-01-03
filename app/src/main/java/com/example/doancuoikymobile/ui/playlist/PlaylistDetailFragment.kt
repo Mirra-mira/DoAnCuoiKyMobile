@@ -39,6 +39,7 @@ class PlaylistDetailFragment : Fragment() {
     private var playlistTitle: String? = null
     private val viewModel: PlaylistDetailViewModel by viewModels()
     private val playerViewModel: PlayerViewModel by activityViewModels()
+    private val libraryViewModel: com.example.doancuoikymobile.viewmodel.LibraryViewModel by activityViewModels()
     private var displayList = ArrayList<LibraryModel>()
     private lateinit var libraryAdapter: LibraryAdapter
     private lateinit var emptyStateView: View
@@ -123,14 +124,17 @@ class PlaylistDetailFragment : Fragment() {
         }
 
         // Setup play button
+        // Tìm đến đoạn btnPlayBig.setOnClickListener trong onCreateView:
         btnPlayBig.setOnClickListener {
             val songs = viewModel.songs.value
             if (songs.isNotEmpty()) {
+                // Gửi toàn bộ danh sách bảng xếp hạng vào Player
                 playerViewModel.setPlaylist(songs, 0)
+
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.frameLayout, PlayerFragment.newInstance(
                         song = songs[0],
-                        playlist = songs,
+                        playlist = ArrayList(songs), // Đảm bảo truyền dưới dạng ArrayList
                         startIndex = 0
                     ))
                     .addToBackStack("PlaylistDetail")

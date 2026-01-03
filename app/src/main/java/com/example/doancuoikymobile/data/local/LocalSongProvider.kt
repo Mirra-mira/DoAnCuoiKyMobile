@@ -21,11 +21,10 @@ class LocalSongProvider(private val context: Context) {
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.DATA, // Đường dẫn file (chỉ dùng cho Android cũ hoặc fallback)
+            MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ALBUM_ID
         )
 
-        // Chỉ lấy các file không phải là bản ghi âm, nhạc chuông...
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
 
         val query = context.contentResolver.query(
@@ -47,7 +46,7 @@ class LocalSongProvider(private val context: Context) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn)
                 val artist = cursor.getString(artistColumn)
-                val duration = cursor.getInt(durationColumn) / 1000 // Chuyển sang giây cho khớp model
+                val duration = cursor.getInt(durationColumn) / 1000
                 val path = cursor.getString(dataColumn)
 
                 // Tạo URI chuẩn cho Media3/ExoPlayer từ ID
@@ -59,8 +58,8 @@ class LocalSongProvider(private val context: Context) {
                         title = title,
                         mainArtistId = artist,
                         duration = duration,
-                        audioUrl = contentUri, // URI để phát nhạc
-                        coverUrl = "", // Nhạc local cần logic riêng để lấy ảnh album
+                        audioUrl = contentUri,
+                        coverUrl = "",
                         isOnline = false // Đánh dấu là nhạc offline
                     )
                 )

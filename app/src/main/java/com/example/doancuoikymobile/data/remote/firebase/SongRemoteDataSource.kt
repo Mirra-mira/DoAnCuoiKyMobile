@@ -35,22 +35,6 @@ class SongRemoteDataSource(
         awaitClose { registration.remove() }
     }
 
-    fun searchSongs(query: String): Flow<List<Song>> = callbackFlow {
-        val registration = songsColl
-            .whereArrayContains("searchKeywords", query.lowercase())
-            .addSnapshotListener { snap, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val list = snap?.documents?.mapNotNull {
-                    it.toObject(Song::class.java)?.copy(songId = it.id)
-                } ?: emptyList()
-                trySend(list).isSuccess
-            }
-        awaitClose { registration.remove() }
-    }
-
     suspend fun saveSong(song: Song): Boolean {
         return try {
             songsColl.document(song.songId).set(song).await()
@@ -70,10 +54,6 @@ class SongRemoteDataSource(
         } catch (e: Exception) {
             false
         }
-    }
-
-    suspend fun upsertSong(song: Song) {
-        songsColl.document(song.songId).set(song).await()
     }
 
     suspend fun deleteSong(songId: String): Boolean {
@@ -115,5 +95,25 @@ class SongRemoteDataSource(
                 trySend(list).isSuccess
             }
         awaitClose { registration.remove() }
+    }
+
+    fun searchSongs(query: String): Flow<List<Song>> = callbackFlow {
+        val registration = songsColl
+            .whereArrayContains("searchKeywords", query.lowercase())
+            .addSnapshotListener { snap, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val list = snap?.documents?.mapNotNull {
+                    it.toObject(Song::class.java)?.copy(songId = it.id)
+                } ?: emptyList()
+                trySend(list).isSuccess
+            }
+        awaitClose { registration.remove() }
+    }
+
+    suspend fun upsertSong(song: Song) {
+        songsColl.document(song.songId).set(song).await()
     }
 }

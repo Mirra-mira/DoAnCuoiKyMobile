@@ -33,14 +33,12 @@ class MediaPlayerService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        // Media3 dùng token để Activity/Fragment có thể điều khiển nhạc qua MediaController
         return mediaSession?.token?.let {
             null
         }
     }
 
     override fun onDestroy() {
-        // Giải phóng MediaSession trước, sau đó mới đến Player
         mediaSession?.run {
             player.release()
             release()

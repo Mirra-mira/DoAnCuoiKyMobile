@@ -26,12 +26,12 @@ import com.example.doancuoikymobile.model.Song
  */
 fun MediaPlayer.playSong(song: Song): Boolean {
     val audioUrl = when {
-        // Priority 1: Full MP3 (user uploaded or full track)
+        // Full MP3
         song.audioUrl.isNotEmpty() && song.audioUrl.startsWith("http") -> {
             Logger.d("PlayerExt", "Playing FULL track: ${song.title} (${song.audioUrl.take(50)}...)")
             song.audioUrl
         }
-        // Priority 2: Deezer preview (fallback)
+        // Deezer preview (fallback)
         song.previewUrl != null && song.previewUrl.startsWith("http") -> {
             Logger.d("PlayerExt", "Playing PREVIEW: ${song.title} (${song.previewUrl.take(50)}...)")
             song.previewUrl

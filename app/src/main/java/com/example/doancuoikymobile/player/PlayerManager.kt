@@ -6,7 +6,6 @@ import android.content.Context
 import com.example.doancuoikymobile.model.Song
 
 object PlayerManager {
-    // Đổi từ private var thành public var để ViewModel có thể addListener
     var player: ExoPlayer? = null
         private set
 
@@ -22,7 +21,6 @@ object PlayerManager {
         }
     }
 
-    // Cập nhật lại các hàm để dùng biến 'player' mới
     fun playSong(song: Song) {
         if (player == null && context != null) init(context!!)
 

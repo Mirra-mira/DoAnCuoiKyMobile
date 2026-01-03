@@ -12,7 +12,7 @@ object NavigationHelper {
     fun openPlayer(fromFragment: Fragment, song: Song) {
         val playerFragment = PlayerFragment.newInstance(
             song = song,
-            playlist = listOf(song), // fallback playlist
+            playlist = listOf(song),
             startIndex = 0
         )
 

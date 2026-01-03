@@ -10,11 +10,9 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val repository: AuthRepository = AuthRepository()) : ViewModel() {
 
-    // Trạng thái xử lý: null (chưa làm gì), Success (thành công), Failure (lỗi)
     private val _authState = MutableStateFlow<Result<FirebaseUser>?>(null)
     val authState: StateFlow<Result<FirebaseUser>?> = _authState
 
-    // Trạng thái Loading để hiển thị ProgressBar nếu cần
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 

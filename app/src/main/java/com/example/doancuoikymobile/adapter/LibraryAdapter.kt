@@ -14,8 +14,8 @@ data class LibraryModel(
     val id: String = "",
     val title: String,
     val subtitle: String,
-    val imageUrl: String? = null, // Thêm để load ảnh nếu có
-    val type: ItemType,           // THÊM DÒNG NÀY
+    val imageUrl: String? = null,
+    val type: ItemType,
     val isLiked: Boolean = false
 )
 
@@ -44,14 +44,11 @@ class LibraryAdapter(
         holder.tvTitle.text = item.title
         holder.tvSubtitle.text = item.subtitle
 
-        // 1. CHỈ HIỆN NÚT (+) CHO BÀI HÁT
         holder.btnAdd.visibility = if (item.type == ItemType.SONG) View.VISIBLE else View.GONE
 
-        // 2. LOGIC NÚT TIM/FOLLOW
         holder.btnLike?.let {
             val icon = if (item.isLiked) R.drawable.ic_heart_filled else R.drawable.ic_heart_outline
             it.setImageResource(icon)
-            // Nếu là Artist, nút này có thể ẩn hoặc đổi thành icon follow khác tùy bạn
             it.visibility = if (item.type == ItemType.PLAYLIST) View.GONE else View.VISIBLE
         }
 

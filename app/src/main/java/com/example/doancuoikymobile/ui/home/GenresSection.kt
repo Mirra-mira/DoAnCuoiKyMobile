@@ -31,7 +31,7 @@ fun GenresSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(vertical = 16.dp)) {
-        SectionHeader("Thể loại")
+        SectionHeader("Rankings")
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),

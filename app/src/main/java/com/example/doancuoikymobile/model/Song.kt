@@ -17,5 +17,5 @@ data class Song(
     val coverUrl: String? = null,
     val mainArtistId: String? = null,
     val artistName: String? = null, // Artist name for display
-    val isOnline: Boolean = false // Thêm cờ này để biết nhạc từ API hay từ Firebase cá nhân
+    val isOnline: Boolean = false // Từ API hay từ Firebase cá nhân
 ) : Serializable

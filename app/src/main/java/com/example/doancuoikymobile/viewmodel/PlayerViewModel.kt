@@ -71,7 +71,6 @@ class PlayerViewModel(
         loadUserPlaylists()
         observePlayerState()
 
-        // Bây giờ bạn có thể gọi .player vì nó đã là public
         PlayerManager.player?.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_ENDED) {

@@ -172,15 +172,14 @@ class LibraryFragment : Fragment() {
                 updateFilterUI()
                 sortMode = SortMode.RECENTLY_PLAYED
                 tvSortLabel.text = "Recently played"
-                // Trigger data load immediately
-                viewModel.artists.value.let { artists ->
+
+                viewModel.followedArtists.value.let { artists ->
                     val models = artists.map { LibraryModel(
                         id = it.artistId,
                         title = it.name,
                         subtitle = "Artist",
                         type = ItemType.ARTIST
-                    )
-                    }
+                    ) }
                     loadData(models)
                 }
             }
@@ -276,10 +275,18 @@ class LibraryFragment : Fragment() {
 
             // Artist (hiển thị khi đang ở tab Artist)
             launch {
-                viewModel.artists.collect { list ->
+                // Sửa từ viewModel.artists thành viewModel.followedArtists
+                viewModel.followedArtists.collect { list ->
                     if (currentTab == TabMode.ARTISTS) {
-                        val followedIds = viewModel.followedArtistIds.value
-                        val models = list.map { LibraryModel(it.artistId, it.name, "Artist", type = ItemType.ARTIST) }
+                        val models = list.map {
+                            LibraryModel(
+                                id = it.artistId,
+                                title = it.name,
+                                subtitle = "Artist",
+                                type = ItemType.ARTIST,
+                                // imageUrl = it.image
+                            )
+                        }
                         loadData(models)
                     }
                 }
@@ -314,12 +321,18 @@ class LibraryFragment : Fragment() {
         
         // Handle empty state
         EmptyStateHelper.handleEmptyState(emptyStateView, rvLibrary, newData.isEmpty())
+        // Trong hàm loadData của LibraryFragment
         if (newData.isEmpty()) {
+            val message = when(currentTab) {
+                TabMode.PLAYLISTS -> "Create your first playlist to get started"
+                TabMode.ARTISTS -> "Follow your favorite artists to see them here"
+                TabMode.SONGS -> "Like some songs to build your library"
+            }
             EmptyStateHelper.updateEmptyState(
                 emptyStateView,
                 iconResId = R.drawable.ic_music_note,
-                title = "No Items",
-                message = "Create your first playlist to get started"
+                title = "Empty Library",
+                message = message
             )
         }
     }

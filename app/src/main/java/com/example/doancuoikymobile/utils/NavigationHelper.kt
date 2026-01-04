@@ -26,16 +26,30 @@ object NavigationHelper {
 
     fun openPlaylist(
         fromFragment: Fragment,
-        playlistId: String,
-        playlistTitle: String
+        title: String,
+        idOrTitle: String
     ) {
+        val isDeezerOrFirebaseId = idOrTitle.all { it.isDigit() }
+
+        val playlistId: String
+        val playlistTitle: String
+
+        if (isDeezerOrFirebaseId) {
+            // Click từ TOP PLAYLIST (Home → Deezer)
+            playlistId = idOrTitle
+            playlistTitle = title
+        } else {
+            // Click từ SEARCH playlist cũ
+            playlistId = title
+            playlistTitle = idOrTitle
+        }
+
         val fragment = PlaylistDetailFragment.newInstance(
             playlistId,
             playlistTitle
         )
 
-        fromFragment.requireActivity()
-            .supportFragmentManager
+        fromFragment.parentFragmentManager
             .beginTransaction()
             .replace(R.id.frameLayout, fragment)
             .addToBackStack("playlist_detail")

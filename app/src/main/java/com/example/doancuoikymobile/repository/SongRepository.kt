@@ -13,8 +13,7 @@ import com.example.doancuoikymobile.ui.home.ContentType
 
 class SongRepository(
     private val songRemoteDataSource: SongRemoteDataSource = SongRemoteDataSource(),
-    private val deezerApi: DeezerApiService = DeezerRetrofitClient.deezerApiService
-) {
+    private val deezerApi: DeezerApiService = DeezerRetrofitClient.deezerApiService) {
 
     fun getAllSongs(): Flow<List<Song>> {
         return songRemoteDataSource.watchAllSongs()
@@ -101,4 +100,13 @@ class SongRepository(
             }
         } catch (e: Exception) { emptyList() }
     }
+
+    suspend fun getPlaylistTracks(playlistId: Long): List<Song> {
+        val response = deezerApi.getPlaylistTracks(playlistId, limit = 100)
+        return response.data.map { it.toSong() }
+    }
+
+    suspend fun getDeezerPlaylistDetails(playlistId: Long) =
+        deezerApi.getPlaylist(playlistId)
+
 }

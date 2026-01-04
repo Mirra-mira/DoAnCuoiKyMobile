@@ -46,8 +46,7 @@ class HomeFragment : Fragment() {
                         onGenreClick = { genre ->
                             // KHI CLICK VÀO CARD (TOP NHẠC):
                             // Mở PlaylistDetail và truyền ID playlist của Deezer qua subtitle hoặc tham số phù hợp
-                            // Trong code của bạn, NavigationHelper.openPlaylist đang nhận (title, subtitle)
-                            // Ta sẽ dùng subtitle để chứa ID playlist
+                            // Dùng subtitle để chứa ID playlist
                             NavigationHelper.openPlaylist(
                                 this@HomeFragment,
                                 genre.name,      // Tên hiển thị: "Top Việt Nam"

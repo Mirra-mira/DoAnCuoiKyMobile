@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         miniPlayerBar = findViewById(R.id.cardMiniPlayer)
         tvMiniTitle = miniPlayerBar.findViewById(R.id.tvMiniTitle)
         tvMiniSubtitle = miniPlayerBar.findViewById(R.id.tvMiniSubtitle)
-        btnMiniPlayPause = miniPlayerBar.findViewById(R.id.btnPlayPause) // ID đúng từ XML bạn gửi
+        btnMiniPlayPause = miniPlayerBar.findViewById(R.id.btnPlayPause)
 
         observePlayer()
 

@@ -84,7 +84,6 @@ class PlayerViewModel(
     private fun loadUserPlaylists() {
         val userId = authRepository.getCurrentUser()?.uid ?: return
         viewModelScope.launch {
-            // Sử dụng hàm watch hoặc get tùy theo Repo của bạn
             playlistRepository.watchUserPlaylists(userId).collect {
                 _userPlaylists.value = it
             }

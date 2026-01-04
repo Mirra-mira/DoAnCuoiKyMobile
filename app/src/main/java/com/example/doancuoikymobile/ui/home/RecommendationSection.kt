@@ -22,7 +22,6 @@ import com.example.doancuoikymobile.ui.components.CoverImage
 
 /**
  * Recommendations Section
- * "Dành cho {username}" hoặc "Gợi ý cho bạn"
  */
 @Composable
 fun RecommendationsSection(

@@ -19,7 +19,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 import com.bumptech.glide.Glide // Khuyên dùng Glide để load ảnh từ URL
 
-class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) { // Giả sử tên layout của bạn
+class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
     private val viewModel: ProfileViewModel by viewModels()
     private var selectedImageUri: Uri? = null
 
@@ -77,7 +77,7 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) { // Giả 
                     if (selectedImageUri == null) { // Chỉ load ảnh mạng nếu chưa chọn ảnh mới
                         Glide.with(this@EditProfileFragment)
                             .load(it.avatarUrl)
-                            .placeholder(R.drawable.ic_launcher_background) // Thay bằng ảnh mặc định của bạn
+                            .placeholder(R.drawable.ic_launcher_background)
                             .into(imgAvatar)
                     }
                     if (edtName.text.isNullOrEmpty()) {

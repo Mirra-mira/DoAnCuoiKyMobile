@@ -24,6 +24,8 @@ class ProfileViewModel(
 
     // Khởi tạo là Idle hoặc Success(null) thay vì Loading ngay lập tức
     private val _updateStatus = MutableStateFlow<Resource<String>?>(null)
+    private val _userStats = MutableStateFlow(Triple(0, 0, 0))
+    val userStats: StateFlow<Triple<Int, Int, Int>> = _userStats
     val updateStatus: StateFlow<Resource<String>?> = _updateStatus
 
     fun loadUser() {
@@ -82,5 +84,21 @@ class ProfileViewModel(
     // Hàm để reset status sau khi thông báo xong
     fun resetUpdateStatus() {
         _updateStatus.value = null
+    }
+
+    fun observeUserStats() {
+        viewModelScope.launch {
+            val firebaseUser = authRepository.getCurrentUser() ?: return@launch
+            userRepository.watchUserStats(firebaseUser.uid).collect {
+                _userStats.value = it
+            }
+        }
+    }
+
+    fun toggleFollowUser(targetUserId: String) {
+        viewModelScope.launch {
+            val currentId = authRepository.getCurrentUser()?.uid ?: return@launch
+            userRepository.toggleFollow(currentId, targetUserId)
+        }
     }
 }

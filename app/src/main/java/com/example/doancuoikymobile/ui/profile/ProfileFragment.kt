@@ -24,6 +24,7 @@ import com.example.doancuoikymobile.viewmodel.ProfileViewModel
 import com.example.doancuoikymobile.adapter.ItemType
 import kotlinx.coroutines.launch
 import android.widget.Toast
+import android.widget.LinearLayout
 
 class ProfileFragment : Fragment() {
 
@@ -114,5 +115,30 @@ class ProfileFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Chuyển sang dùng hàm observe real-time
+        profileViewModel.observeUserStats()
+
+        // Khai báo View - Khuyên dùng ID trực tiếp như R.id.tvFollowerCount
+        // Nếu dùng getChildAt, hãy đảm bảo đúng thứ tự XML:
+        val layoutStats = view.findViewById<LinearLayout>(R.id.layoutStats)
+
+        val tvPlaylistCount = (layoutStats.getChildAt(0) as? ViewGroup)?.getChildAt(0) as? TextView
+        val tvFollowerCount = (layoutStats.getChildAt(1) as? ViewGroup)?.getChildAt(0) as? TextView
+        val tvFollowingCount = (layoutStats.getChildAt(2) as? ViewGroup)?.getChildAt(0) as? TextView
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                profileViewModel.userStats.collect { (playlists, followers, following) ->
+                    tvPlaylistCount?.text = playlists.toString()
+                    tvFollowerCount?.text = followers.toString()
+                    tvFollowingCount?.text = following.toString()
+                }
+            }
+        }
     }
 }

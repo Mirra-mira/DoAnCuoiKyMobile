@@ -64,9 +64,17 @@ class PlayerFragment : Fragment() {
         PlayerManager.init(requireContext())
 
         val song = arguments?.getSerializable("song") as? Song
+        val playlist = arguments?.getSerializable("playlist") as? List<Song>
+        val startIndex = arguments?.getInt("startIndex", 0) ?: 0
 
-        if (viewModel.currentSong.value == null && song != null) {
+        if (song != null) {
+            // LUÔN gọi playSong() để reset Player (bỏ điều kiện currentSong.value == null)
             viewModel.playSong(song)
+            
+            // Cập nhật playlist nếu có
+            if (playlist != null) {
+                viewModel.setPlaylist(playlist, startIndex)
+            }
         }
 
         observeViewModel()

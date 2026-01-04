@@ -162,4 +162,8 @@ dependencies {
     implementation("androidx.media3:media3-common:$media3_version")
     implementation("androidx.activity:activity-ktx:1.8.2")
 
+    // Navigation Component
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+
 }

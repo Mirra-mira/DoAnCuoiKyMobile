@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import android.widget.Toast
 import com.example.doancuoikymobile.adapter.ItemType
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.color.MaterialColors
 
 class LibraryFragment : Fragment() {
 
@@ -345,7 +346,11 @@ class LibraryFragment : Fragment() {
 
     private fun updateFilterUI() {
         // Lấy màu mặc định từ colors.xml
-        val defaultTextColor = ContextCompat.getColor(requireContext(), R.color.off_black)
+        val defaultTextColor = MaterialColors.getColor(
+            requireContext(),
+            com.google.android.material.R.attr.colorOnBackground,
+            Color.BLACK
+        )
 
         // Reset tất cả các button
         listOf(btnPlaylists, btnArtists, btnSongs).forEach { btn ->

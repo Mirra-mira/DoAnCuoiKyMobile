@@ -64,12 +64,8 @@ class PlayerFragment : Fragment() {
         PlayerManager.init(requireContext())
 
         val song = arguments?.getSerializable("song") as? Song
-        val songs = arguments?.getSerializable("playlist") as? ArrayList<Song>
-        val index = arguments?.getInt("startIndex") ?: 0
 
-        if (!songs.isNullOrEmpty()) {
-            viewModel.setPlaylist(songs, index)
-        } else if (song != null) {
+        if (viewModel.currentSong.value == null && song != null) {
             viewModel.playSong(song)
         }
 

@@ -25,15 +25,25 @@ object PlayerManager {
         if (player == null && context != null) init(context!!)
 
         currentSong = song
-        val urlToPlay = if (song.audioUrl.isNotEmpty()) song.audioUrl else song.previewUrl ?: ""
 
-        if (urlToPlay.isEmpty()) return
+        // Ưu tiên audioUrl (vì ViewModel của chúng ta đã gán link preview vào audioUrl trước khi gửi sang đây)
+        val urlToPlay = when {
+            song.audioUrl.isNotEmpty() -> song.audioUrl
+            !song.previewUrl.isNullOrEmpty() -> song.previewUrl
+            else -> ""
+        }
+
+        if (urlToPlay.isEmpty()) {
+            android.util.Log.e("DEBUG_PLAYER", "LỖI: Bài '${song.title}' (ID: ${song.songId}) không có link nhạc!")
+            return
+        }
 
         val mediaItem = MediaItem.fromUri(urlToPlay)
-        player?.apply {
-            setMediaItem(mediaItem)
-            prepare()
-            play()
+        player?.let { exoPlayer ->
+            exoPlayer.setMediaItem(mediaItem)
+            exoPlayer.prepare()
+            exoPlayer.play()
+            android.util.Log.d("PlayerManager", "Đang phát: ${song.title} với URL: $urlToPlay")
         }
     }
 

@@ -208,52 +208,59 @@ class PlayerViewModel(
         }
     }
 
+    fun playFromPlaylist(songs: List<Song>, startIndex: Int) {
+        playlist.clear()
+        playlist.addAll(songs)
+        currentPlaylistIndex = startIndex
+        if (startIndex in playlist.indices) {
+            playSong(playlist[startIndex])
+        }
+    }
+
     fun playSong(song: Song) {
         viewModelScope.launch {
-            var playedSong = song
+            var songToPlay = song
 
-            if (playedSong.audioUrl.isEmpty() && playedSong.songId.isNotEmpty()) {
-                songRepository.getSongById(playedSong.songId)?.let {
-                    if (it.audioUrl.isNotEmpty()) playedSong = it
+            // 1. Nếu không có URL nào, thử tìm trong Database xem trước đó đã lưu chưa
+            if (songToPlay.audioUrl.isEmpty() && songToPlay.previewUrl.isNullOrEmpty()) {
+                songRepository.getSongById(song.songId)?.let {
+                    songToPlay = it
                 }
             }
 
+            // 2. Xác định link nhạc cuối cùng theo đúng ưu tiên của bạn
             val finalUrl = when {
-                playedSong.audioUrl.isNotEmpty() -> playedSong.audioUrl
-                !playedSong.previewUrl.isNullOrEmpty() -> playedSong.previewUrl
+                songToPlay.audioUrl.isNotEmpty() -> songToPlay.audioUrl
+                !songToPlay.previewUrl.isNullOrEmpty() -> songToPlay.previewUrl
                 else -> null
-            } ?: return@launch
-
-            val songToPlay = playedSong.copy(audioUrl = finalUrl)
-
-            if (songToPlay.isOnline) {
-                songRepository.saveSong(songToPlay)
             }
 
-            PlayerManager.playSong(songToPlay)
-            _currentSong.value = songToPlay
-            checkLikeStatus(songToPlay.songId)
+            // Nếu vẫn không có link, thoát và log lỗi
+            if (finalUrl == null) {
+                android.util.Log.e("PlayerError", "Không tìm thấy URL cho bài: ${song.title}")
+                return@launch
+            }
 
-            authRepository.getCurrentUser()?.let { user ->
-                recentlyPlayedRepository.addPlayed(
-                    RecentlyPlayed(
-                        user.uid,
-                        songToPlay.songId,
-                        System.currentTimeMillis()
+            // 3. Tạo bản copy với URL chuẩn để PlayerManager xử lý
+            val readySong = songToPlay.copy(audioUrl = finalUrl)
+
+            // 4. Cập nhật Playlist Index
+            val index = playlist.indexOfFirst { it.songId == readySong.songId }
+            if (index != -1) currentPlaylistIndex = index
+
+            // 5. Phát nhạc
+            PlayerManager.playSong(readySong)
+            _currentSong.value = readySong
+
+            // 6. Xử lý logic phụ (không block luồng phát nhạc)
+            launch {
+                checkLikeStatus(readySong.songId)
+                // Lưu vào gần đây
+                authRepository.getCurrentUser()?.let { user ->
+                    recentlyPlayedRepository.addPlayed(
+                        RecentlyPlayed(user.uid, readySong.songId, System.currentTimeMillis())
                     )
-                )
-            }
-
-            songToPlay.mainArtistId
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { artistId ->
-                    artistRepository.getArtistOnce(artistId)?.let {
-                        _artistName.value = it.name
-                    } ?: run {
-                        _artistName.value = songToPlay.artistName.orEmpty()
-                    }
-                } ?: run {
-                _artistName.value = songToPlay.artistName.orEmpty()
+                }
             }
         }
     }

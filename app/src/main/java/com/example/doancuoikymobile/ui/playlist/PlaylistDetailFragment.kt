@@ -71,7 +71,6 @@ class PlaylistDetailFragment : Fragment() {
         val currentUser = FirebaseAuth.getInstance().currentUser
 
         // Load liked songs to show like status
-        val libraryViewModel = com.example.doancuoikymobile.viewmodel.LibraryViewModel()
         currentUser?.let { user ->
             libraryViewModel.loadLibraryData(user.uid)
         }
@@ -100,12 +99,14 @@ class PlaylistDetailFragment : Fragment() {
             displayList,
             onItemClick = songListHandler,
             onAddClick = { model ->
+                // Tìm đối tượng Song đầy đủ từ danh sách đang hiển thị
                 val song = viewModel.songs.value.find { it.songId == model.id } ?: return@LibraryAdapter
 
                 lifecycleScope.launch {
                     val playlists = viewModel.getUserPlaylists()
-                    ChoosePlaylistDialog(requireContext(), playlists) { playlist ->
-                        viewModel.addSongToPlaylist(playlist.playlistId, song.songId)
+                    ChoosePlaylistDialog(requireContext(), playlists) { selectedPlaylist ->
+                        // Truyền đối tượng song (đã có previewUrl) vào ViewModel
+                        viewModel.addSongToPlaylist(selectedPlaylist.playlistId, song)
                     }.show()
                 }
             },

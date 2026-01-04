@@ -20,7 +20,21 @@ class SongRepository(
     }
 
     suspend fun getSongById(songId: String): Song? {
-        return songRemoteDataSource.getSongOnce(songId)
+        // 1. Thử lấy từ Firebase
+        val songFromFirebase = songRemoteDataSource.getSongOnce(songId)
+
+        // Nếu có bài hát và có link nhạc thì trả về luôn
+        if (songFromFirebase != null && !songFromFirebase.previewUrl.isNullOrEmpty()) {
+            return songFromFirebase
+        }
+
+        // 2. Nếu không có link, "cứu" bằng cách gọi Deezer API (vì songId chính là Deezer ID)
+        return try {
+            val response = deezerApi.getTrack(songId.toLong())
+            response.toSong() // Mapper sẽ điền previewUrl vào đây
+        } catch (e: Exception) {
+            songFromFirebase // Trả về bản gốc nếu API lỗi
+        }
     }
 
     fun searchSongs(query: String): Flow<Resource<List<Song>>> = flow {

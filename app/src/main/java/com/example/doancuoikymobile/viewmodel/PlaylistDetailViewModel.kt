@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.doancuoikymobile.model.Playlist
 import kotlinx.coroutines.flow.asStateFlow
+import android.util.Log
 
 class PlaylistDetailViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -51,6 +52,7 @@ class PlaylistDetailViewModel : ViewModel() {
                 try {
                     val response = deezerApi.getPlaylistTracks(playlistIdLong, limit = 100)
                     val tracks = response.data.map { it.toSong() }
+                    tracks.forEach { Log.d("DEBUG_PLAYLIST", "Song: ${it.title}, Link: ${it.previewUrl}") }
                     _songs.value = tracks
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -76,13 +78,18 @@ class PlaylistDetailViewModel : ViewModel() {
         }
     }
 
-    fun addSongToPlaylist(playlistId: String, songId: String) {
+    // Truyền cả đối tượng Song vào thay vì chỉ ID
+    fun addSongToPlaylist(playlistId: String, song: Song) {
         viewModelScope.launch {
-            val exists = playlistRepo.isSongInPlaylist(playlistId, songId)
+            // 1. Đảm bảo thông tin chi tiết bài hát (bao gồm previewUrl) đã có trên Firebase
+            songRepo.saveSongIfNotExists(song)
+
+            // 2. Sau đó mới thêm liên kết vào playlist
+            val exists = playlistRepo.isSongInPlaylist(playlistId, song.songId)
             if (!exists) {
                 playlistRepo.addSongToPlaylist(
                     playlistId,
-                    songId,
+                    song.songId,
                     orderIndex = System.currentTimeMillis().toInt()
                 )
             }

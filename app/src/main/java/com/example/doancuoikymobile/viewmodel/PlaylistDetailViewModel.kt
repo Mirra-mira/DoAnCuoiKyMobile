@@ -81,8 +81,19 @@ class PlaylistDetailViewModel : ViewModel() {
     // Truyền cả đối tượng Song vào thay vì chỉ ID
     fun addSongToPlaylist(playlistId: String, song: Song) {
         viewModelScope.launch {
-            // 1. Đảm bảo thông tin chi tiết bài hát (bao gồm previewUrl) đã có trên Firebase
-            songRepo.saveSongIfNotExists(song)
+            // 1. Lưu CHỈ dữ liệu tĩnh (id, title, artist, coverUrl) - KHÔNG lưu previewUrl và audioUrl
+            val staticSongData = Song(
+                songId = song.songId,
+                title = song.title,
+                duration = song.duration,
+                audioUrl = "", // ⬜ Để trống - insert tay MP3 sau khi có file
+                previewUrl = null, // ❌ Không lưu previewUrl - nó sẽ hết hạn
+                coverUrl = song.coverUrl,
+                mainArtistId = song.mainArtistId,
+                artistName = song.artistName,
+                isOnline = song.isOnline
+            )
+            songRepo.saveSongIfNotExists(staticSongData)
 
             // 2. Sau đó mới thêm liên kết vào playlist
             val exists = playlistRepo.isSongInPlaylist(playlistId, song.songId)

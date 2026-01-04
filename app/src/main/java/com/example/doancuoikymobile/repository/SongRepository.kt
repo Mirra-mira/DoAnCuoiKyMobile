@@ -20,20 +20,26 @@ class SongRepository(
     }
 
     suspend fun getSongById(songId: String): Song? {
-        // 1. Thử lấy từ Firebase
+        // 1. Check Firebase: Lấy dữ liệu tĩnh (audioUrl nếu có, artis info)
         val songFromFirebase = songRemoteDataSource.getSongOnce(songId)
 
-        // Nếu có bài hát và có link nhạc thì trả về luôn
-        if (songFromFirebase != null && !songFromFirebase.previewUrl.isNullOrEmpty()) {
+        // 2. Ưu tiên audioUrl (full MP3 - bền lâu)
+        if (songFromFirebase != null && songFromFirebase.audioUrl.isNotEmpty()) {
             return songFromFirebase
         }
 
-        // 2. Nếu không có link, "cứu" bằng cách gọi Deezer API (vì songId chính là Deezer ID)
+        // 3. Bắt buộc refresh previewUrl từ Deezer (không dùng cái cũ trong Firebase - nó hết hạn)
         return try {
             val response = deezerApi.getTrack(songId.toLong())
-            response.toSong() // Mapper sẽ điền previewUrl vào đây
+            val freshSong = response.toSong()
+            // Giữ audioUrl từ Firebase (nếu có full MP3), còn lại dùng previewUrl mới từ Deezer
+            freshSong.copy(
+                audioUrl = songFromFirebase?.audioUrl ?: "",
+                artistName = songFromFirebase?.artistName ?: freshSong.artistName,
+                mainArtistId = songFromFirebase?.mainArtistId ?: freshSong.mainArtistId
+            )
         } catch (e: Exception) {
-            songFromFirebase // Trả về bản gốc nếu API lỗi
+            songFromFirebase // Fallback nếu API lỗi
         }
     }
 

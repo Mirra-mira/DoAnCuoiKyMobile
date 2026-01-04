@@ -96,7 +96,19 @@ class PlayerViewModel(
 
         viewModelScope.launch {
             if (song.isOnline) {
-                songRepository.saveSong(song)
+                // Chỉ lưu static data (NO audioUrl, NO previewUrl)
+                val staticSongData = Song(
+                    songId = song.songId,
+                    title = song.title,
+                    duration = song.duration,
+                    audioUrl = "",
+                    previewUrl = null,
+                    coverUrl = song.coverUrl,
+                    mainArtistId = song.mainArtistId,
+                    artistName = song.artistName,
+                    isOnline = song.isOnline
+                )
+                songRepository.saveSongIfNotExists(staticSongData)
             }
             playlistRepository.addSongToPlaylist(playlistId, song.songId)
         }
@@ -221,14 +233,17 @@ class PlayerViewModel(
         viewModelScope.launch {
             var songToPlay = song
 
-            // 1. Nếu không có URL nào, thử tìm trong Database xem trước đó đã lưu chưa
+            // 1. Nếu không có URL nào, thử tìm trong Database hoặc refresh từ Deezer
             if (songToPlay.audioUrl.isEmpty() && songToPlay.previewUrl.isNullOrEmpty()) {
-                songRepository.getSongById(song.songId)?.let {
-                    songToPlay = it
+                // Thử lấy từ Firebase trước
+                val dbSong = songRepository.getSongById(song.songId)
+                if (dbSong != null) {
+                    songToPlay = dbSong
                 }
+                // Nếu DB trả về null hoặc vẫn không có URL, getSongById() sẽ tự refresh từ Deezer
             }
 
-            // 2. Xác định link nhạc cuối cùng theo đúng ưu tiên của bạn
+            // 2. Xác định link nhạc cuối cùng theo đúng ưu tiên
             val finalUrl = when {
                 songToPlay.audioUrl.isNotEmpty() -> songToPlay.audioUrl
                 !songToPlay.previewUrl.isNullOrEmpty() -> songToPlay.previewUrl
@@ -248,11 +263,14 @@ class PlayerViewModel(
             val index = playlist.indexOfFirst { it.songId == readySong.songId }
             if (index != -1) currentPlaylistIndex = index
 
-            // 5. Phát nhạc
-            PlayerManager.playSong(readySong)
+            // 5. Cập nhật tên ca sĩ NGAY (hiển thị trên UI sớm nhất)
             _currentSong.value = readySong
+            _artistName.value = readySong.artistName.orEmpty()
 
-            // 6. Xử lý logic phụ (không block luồng phát nhạc)
+            // 6. Phát nhạc
+            PlayerManager.playSong(readySong)
+
+            // 7. Xử lý logic phụ (không block luồng phát nhạc)
             launch {
                 checkLikeStatus(readySong.songId)
                 // Lưu vào gần đây

@@ -30,4 +30,14 @@ class StorageDataSource(
     suspend fun delete(remotePath: String) {
         root.child(remotePath).delete().await()
     }
+
+    suspend fun uploadAvatar(userId: String, imageUri: Uri): String? {
+        return try {
+            val ref = FirebaseStorage.getInstance().reference.child("avatars/$userId.jpg")
+            ref.putFile(imageUri).await()
+            ref.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

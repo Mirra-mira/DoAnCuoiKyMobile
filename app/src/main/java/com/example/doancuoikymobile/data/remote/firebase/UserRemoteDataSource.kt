@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.channels.awaitClose
+import com.google.firebase.storage.FirebaseStorage
 
 class UserRemoteDataSource(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -52,5 +53,29 @@ class UserRemoteDataSource(
 
     suspend fun deleteUser(userId: String) {
         usersColl.document(userId).delete().await()
+    }
+
+    suspend fun updateUserProfile(userId: String, updates: Map<String, Any>): Boolean {
+        return try {
+            FirebaseFirestore.getInstance().collection("users")
+                .document(userId)
+                .update(updates)
+                .await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun uploadAvatar(
+        userId: String,
+        imageUri: android.net.Uri
+    ): String? {
+        val storageRef = FirebaseStorage.getInstance()
+            .reference
+            .child("avatars/$userId.jpg")
+
+        storageRef.putFile(imageUri).await()
+        return storageRef.downloadUrl.await().toString()
     }
 }

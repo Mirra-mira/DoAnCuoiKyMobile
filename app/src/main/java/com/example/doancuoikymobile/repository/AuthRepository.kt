@@ -2,10 +2,13 @@ package com.example.doancuoikymobile.repository
 
 import com.example.doancuoikymobile.data.remote.firebase.FirebaseAuthSource
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.auth.FirebaseAuth
 
 class AuthRepository {
 
     private val authSource = FirebaseAuthSource()
+    private val firebaseAuth = FirebaseAuth.getInstance()
 
     suspend fun signIn(email: String, password: String): Result<FirebaseUser> {
         return try {
@@ -40,5 +43,12 @@ class AuthRepository {
 
     fun signOut() {
         authSource.signOut()
+    }
+
+    suspend fun updatePassword(newPassword: String) {
+        val user = firebaseAuth.currentUser
+            ?: throw Exception("User not logged in")
+
+        user.updatePassword(newPassword).await()
     }
 }

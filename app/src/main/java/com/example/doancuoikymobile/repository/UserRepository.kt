@@ -40,4 +40,11 @@ class UserRepository(
     fun watchUser(userId: String): Flow<User?> = remote.watchUser(userId)
     suspend fun upsertUser(user: User) = remote.upsertUser(user)
     suspend fun deleteUser(userId: String) = remote.deleteUser(userId)
+
+    suspend fun uploadAvatar(
+        userId: String,
+        imageUri: android.net.Uri
+    ): String? {
+        return remote.uploadAvatar(userId, imageUri)
+    }
 }

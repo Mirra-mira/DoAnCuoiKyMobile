@@ -92,23 +92,27 @@ class PlayerViewModel(
 
     // Hàm thực hiện thêm bài hát hiện tại vào một playlist cụ thể
     fun addCurrentSongToPlaylist(playlistId: String) {
-        val songId = _currentSong.value?.songId ?: return
+        val song = _currentSong.value ?: return
+
         viewModelScope.launch {
-            playlistRepository.addSongToPlaylist(playlistId, songId)
+            if (song.isOnline) {
+                songRepository.saveSong(song)
+            }
+            playlistRepository.addSongToPlaylist(playlistId, song.songId)
         }
     }
 
     private fun observePlayerState() {
         viewModelScope.launch {
-            while (true) {
-                val songFromServer = PlayerManager.getCurrentSong()
+            while (PlayerManager.player != null) {
+                val songFromPlayer = PlayerManager.getCurrentSong()
 
-                // CHỈ cập nhật nếu songFromServer thực sự khác null
-                // Tránh việc PlayerManager trả về null làm mất MiniPlayer
-                if (songFromServer != null && songFromServer.songId != _currentSong.value?.songId) {
-                    _currentSong.value = songFromServer
-                    _artistName.value = songFromServer.artistName ?: ""
-                    checkLikeStatus(songFromServer.songId)
+                if (songFromPlayer != null &&
+                    songFromPlayer.songId != _currentSong.value?.songId
+                ) {
+                    _currentSong.value = songFromPlayer
+                    _artistName.value = songFromPlayer.artistName.orEmpty()
+                    checkLikeStatus(songFromPlayer.songId)
                 }
 
                 _isPlaying.value = PlayerManager.isPlaying()
@@ -123,7 +127,8 @@ class PlayerViewModel(
     private fun checkLikeStatus(songId: String) {
         val userId = authRepository.getCurrentUser()?.uid ?: return
         viewModelScope.launch {
-            _isCurrentSongLiked.value = likedSongRepository.isLiked(userId, songId)
+            _isCurrentSongLiked.value =
+                likedSongRepository.isLiked(userId, songId)
         }
     }
 
@@ -141,11 +146,8 @@ class PlayerViewModel(
     }
 
     fun togglePlayPause() {
-        if (PlayerManager.isPlaying()) {
-            PlayerManager.pause()
-        } else {
-            PlayerManager.play()
-        }
+        if (PlayerManager.isPlaying()) PlayerManager.pause()
+        else PlayerManager.play()
     }
 
     fun seekTo(position: Long) {
@@ -155,21 +157,25 @@ class PlayerViewModel(
     fun playNext() {
         if (playlist.isEmpty()) return
 
-        // Tìm vị trí hiện tại nếu index bị sai lệch
+        when (_repeatMode.value) {
+            1 -> { // REPEAT ONE
+                _currentSong.value?.let { playSong(it) }
+                return
+            }
+        }
+
         if (currentPlaylistIndex == -1) {
-            currentPlaylistIndex = playlist.indexOfFirst { it.songId == _currentSong.value?.songId }
+            currentPlaylistIndex =
+                playlist.indexOfFirst { it.songId == _currentSong.value?.songId }
         }
 
         currentPlaylistIndex = if (_isShuffle.value && playlist.size > 1) {
-            // Random một vị trí mới khác vị trí hiện tại
             (playlist.indices).filter { it != currentPlaylistIndex }.random()
         } else {
             (currentPlaylistIndex + 1) % playlist.size
         }
 
-        if (currentPlaylistIndex in playlist.indices) {
-            playSong(playlist[currentPlaylistIndex])
-        }
+        playSong(playlist[currentPlaylistIndex])
     }
 
     fun playPrevious() {
@@ -206,45 +212,49 @@ class PlayerViewModel(
         viewModelScope.launch {
             var playedSong = song
 
-            // Nếu audioUrl trống, thử tìm trong Firebase
             if (playedSong.audioUrl.isEmpty() && playedSong.songId.isNotEmpty()) {
-                val firebaseSong = songRepository.getSongById(playedSong.songId)
-                if (firebaseSong != null && firebaseSong.audioUrl.isNotEmpty()) {
-                    playedSong = firebaseSong
+                songRepository.getSongById(playedSong.songId)?.let {
+                    if (it.audioUrl.isNotEmpty()) playedSong = it
                 }
             }
 
-            // Xác định URL thực tế sẽ dùng để phát
             val finalUrl = when {
                 playedSong.audioUrl.isNotEmpty() -> playedSong.audioUrl
                 !playedSong.previewUrl.isNullOrEmpty() -> playedSong.previewUrl
                 else -> null
+            } ?: return@launch
+
+            val songToPlay = playedSong.copy(audioUrl = finalUrl)
+
+            if (songToPlay.isOnline) {
+                songRepository.saveSong(songToPlay)
             }
 
-            // Xử lý phát nhạc
-            if (finalUrl != null) {
-                // Tạo một bản copy có audioUrl là link hợp lệ (dù là link preview)
-                // Điều này đảm bảo PlayerManager luôn có link để load source.
-                val songToPlay = playedSong.copy(audioUrl = finalUrl)
+            PlayerManager.playSong(songToPlay)
+            _currentSong.value = songToPlay
+            checkLikeStatus(songToPlay.songId)
 
-                PlayerManager.playSong(songToPlay)
-                _currentSong.value = songToPlay
-
-                checkLikeStatus(songToPlay.songId)
+            authRepository.getCurrentUser()?.let { user ->
+                recentlyPlayedRepository.addPlayed(
+                    RecentlyPlayed(
+                        user.uid,
+                        songToPlay.songId,
+                        System.currentTimeMillis()
+                    )
+                )
             }
 
-            val currentUser = authRepository.getCurrentUser()
-            if (currentUser != null) {
-                recentlyPlayedRepository.addPlayed(RecentlyPlayed(currentUser.uid, song.songId, System.currentTimeMillis()))
+            songToPlay.mainArtistId
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { artistId ->
+                    artistRepository.getArtistOnce(artistId)?.let {
+                        _artistName.value = it.name
+                    } ?: run {
+                        _artistName.value = songToPlay.artistName.orEmpty()
+                    }
+                } ?: run {
+                _artistName.value = songToPlay.artistName.orEmpty()
             }
-
-            song.mainArtistId?.let { artistId ->
-                if (artistId.isNotEmpty()) {
-                    artistRepository.getArtistOnce(artistId)?.let { artist ->
-                        _artistName.value = artist.name
-                    } ?: run { _artistName.value = song.artistName ?: "" }
-                } else { _artistName.value = song.artistName ?: "" }
-            } ?: run { _artistName.value = song.artistName ?: "" }
         }
     }
 }

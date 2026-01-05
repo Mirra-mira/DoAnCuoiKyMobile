@@ -188,7 +188,7 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/ic_play_to_pause"
             android:scaleType="center"
-            app:tint="?attr/colorOnBackground" />
+            />
 
         <ImageView
             android:id="@+id/btnNext"

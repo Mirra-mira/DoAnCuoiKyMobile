@@ -151,10 +151,10 @@ class PlayerFragment : Fragment() {
             }
             launch {
                 viewModel.isPlaying.collect { isPlaying ->
-                    btnPlay.setImageResource(
-                        if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-                    )
+                    btnPlay.isSelected = isPlaying
+
                 }
+
             }
             launch {
                 viewModel.progress.collect { pos ->
@@ -185,9 +185,9 @@ class PlayerFragment : Fragment() {
                 viewModel.isCurrentSongLiked.collect { isLiked ->
                     if (isLiked) {
                         btnLike.setImageResource(R.drawable.ic_heart_filled)
-                        btnLike.setColorFilter(
-                            resources.getColor(R.color.red, null)
-                        )
+//                        btnLike.setColorFilter(
+//                            resources.getColor(R.color.red, null)
+//                        )
                     } else {
                         btnLike.setImageResource(R.drawable.ic_heart_outline)
                         btnLike.clearColorFilter()

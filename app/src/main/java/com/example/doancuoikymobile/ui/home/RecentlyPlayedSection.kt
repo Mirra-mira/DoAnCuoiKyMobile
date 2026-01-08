@@ -36,7 +36,7 @@ fun RecentlyPlayedSection(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(items) { item ->
+            items(items.take(10)) { item ->
                 RecentlyPlayedCard(
                     item = item,
                     onClick = { onItemClick(item) }
